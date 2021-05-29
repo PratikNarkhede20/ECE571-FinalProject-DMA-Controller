@@ -6,7 +6,7 @@ interface dmaInternalRegistersIf(input logic CLK, RESET);
     dmaInternalRegistersPkg :: request,
     dmaInternalRegistersPkg :: status ;
 
-  modport PriorityEncoder(
+  modport PriorityLogic(
     input CLK,
     input RESET,
     input command,
@@ -16,11 +16,16 @@ interface dmaInternalRegistersIf(input logic CLK, RESET);
 
   modport TimingControl(
     input CLK,
-    input RESET
+    input RESET,
+    input mode,
+    input status
   );
 
   modport DataPath(
     input CLK,
-    input RESET);
+    input RESET,
+    input command,
+    input mode
+    input request);
 
 endinterface
