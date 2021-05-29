@@ -1,26 +1,26 @@
 interface cpuInterface(input CLK, RESET);
 
-  logic 		IOR_N  ;
-  logic 		IOW_N  ;
-  logic 		MEMR_N ;
-  logic 		MEMW_N ;
-  logic 		READY  ;
-  logic 		HLDA   ;
-  logic 		ADSTB  ;
-  logic 		AEN    ;
-  logic 		HRQ    ;
-  logic 		CS_N   ; 
-  logic 		DACK0  ;
-  logic 		DACK1  ;
-  logic 		DACK2  ;
-  logic 		DACK3  ;
-  logic 		DREQ0  ;
-  logic 		DREQ1  ;
-  logic 		DREQ2  ;
-  logic		    DREQ3  ;
-  wire 			EOP_N  ;
+  logic 		    IOR_N  ;
+  logic 		    IOW_N  ;
+  logic 		    MEMR_N ;
+  logic 		    MEMW_N ;
+  logic 		    READY  ;
+  logic 		    HLDA   ;
+  logic 		    ADSTB  ;
+  logic 		    AEN    ;
+  logic 	     	HRQ    ;
+  logic 		    CS_N   ;
+  logic 		    DACK0  ;
+  logic 		    DACK1  ;
+  logic 		    DACK2  ;
+  logic 		    DACK3  ;
+  logic 		    DREQ0  ;
+  logic 		    DREQ1  ;
+  logic 		    DREQ2  ;
+  logic		      DREQ3  ;
+  wire 			    EOP_N  ;
   wire  [3 : 0] ADDR_LO;
-  logic [3 : 0] ADDR_UP; 
+  logic [3 : 0] ADDR_UP;
   wire  [7 : 0] DB     ;
 
   modport TimingControl(
