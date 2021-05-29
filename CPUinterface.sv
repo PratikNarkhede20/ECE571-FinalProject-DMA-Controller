@@ -9,7 +9,7 @@ interface CPUinterface(input CLK, RESET);
   logic 		ADSTB  ;
   logic 		AEN    ;
   logic 		HRQ    ;
-  logic 		CS_N   ;
+  logic 		CS_N   ; 
   logic 		DACK0  ;
   logic 		DACK1  ;
   logic 		DACK2  ;
@@ -20,7 +20,7 @@ interface CPUinterface(input CLK, RESET);
   logic		    DREQ3  ;
   wire 			EOP_N  ;
   wire  [3 : 0] ADDR_LO;
-  logic [3 : 0] ADDR_UP;
+  logic [3 : 0] ADDR_UP; 
   wire  [7 : 0] DB     ;
 
   modport TimingControl(
@@ -39,7 +39,7 @@ interface CPUinterface(input CLK, RESET);
     output MEMW_N
   );
 
-  modport PriorityEncoder(
+  modport PriorityLogic(
     input DREQ0,
     input DREQ1,
     input DREQ2,
@@ -52,6 +52,10 @@ interface CPUinterface(input CLK, RESET);
     output DACK2,
     output DACK3
   );
+
+  modport DataPath(
+    input CLK,
+    input RESET);
 
 
 endinterface
