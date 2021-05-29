@@ -1,4 +1,4 @@
-interface CPUinterface(input CLK, RESET);
+interface cpuInterface(input CLK, RESET);
 
   logic 		IOR_N  ;
   logic 		IOW_N  ;
