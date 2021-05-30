@@ -15,9 +15,9 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
                     S4 = 6'b000001 << S4Index} state, nextState;
 
   //Reset Condition
-  always_ff @(posedge CLK)
+  always_ff @(posedge TCcpuIf.CLK)
     begin
-      if (RESET)
+      if (TCcpuIf.RESET)
         state <= SI;
       else
         state <= nextState;
