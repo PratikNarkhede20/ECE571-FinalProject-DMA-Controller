@@ -90,33 +90,33 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
             DACK0:
             begin
               cpuIf.IOR_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.MEMW_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.IOW_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
-              assign cpuIf.MEMR_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
             DACK1:
             begin
-              assign cpuIf.IOR_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.MEMW_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.IOW_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
-              assign cpuIf.MEMR_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
             DACK2:
             begin
-              assign cpuIf.IOR_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.MEMW_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.IOW_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
-              assign cpuIf.MEMR_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
             DACK3:
             begin
-              assign cpuIf.IOR_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.MEMW_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
-              assign cpuIf.IOW_N = (intRegIf.mode[3].transferType == 2'b10)? 1'b0 : 1'bz;
-              assign cpuIf.MEMR_N = (intRegIf.mode[3].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.mode[3].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.mode[3].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
           endcase
@@ -125,10 +125,10 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
 
         State[S4Index]:
         begin
-          assign cpuIf.IOR_N = (IOR_N == 1'b0)? 1'b1 : 1'bz;
-          assign cpuIf.MEMW_N = (MEMW_N == 1'b0)? 1'b1 : 1'bz;
-          assign cpuIf.IOW_N = (IOW_N == 1'b0)? 1'b1 : 1'bz;
-          assign cpuIf.MEMR_N = (MEMR_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.IOR_N = (IOR_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.MEMW_N = (MEMW_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.IOW_N = (IOW_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.MEMR_N = (MEMR_N == 1'b0)? 1'b1 : 1'bz;
 
           intRegIf.temporaryWordCount = intRegIf.temporaryWordCount - 1'b1;
           if (intRegIf.temporaryWordCount == 0)
