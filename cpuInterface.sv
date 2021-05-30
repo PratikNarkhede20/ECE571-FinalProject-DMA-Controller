@@ -57,5 +57,7 @@ interface cpuInterface(input CLK, RESET);
     input CLK,
     input RESET);
 
+    
+
 
 endinterface
