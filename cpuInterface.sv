@@ -57,7 +57,14 @@ interface cpuInterface(input CLK, RESET);
 
   modport DataPath(
     input CLK,
-    input RESET);
+    input RESET
+    input CS_N
+    input IOR_N,
+    input IOR_W,
+    input A0,
+    input A1,
+    input A2,
+    input A3);
 
 
 
