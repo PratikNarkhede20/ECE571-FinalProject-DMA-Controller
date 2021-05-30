@@ -52,6 +52,7 @@ interface dmaInternalRegistersIf(input logic CLK, RESET);
   modport DataPath(
     input commandReg,
     input modeReg,
-    input requestReg);
+    input requestReg
+  );
 
 endinterface

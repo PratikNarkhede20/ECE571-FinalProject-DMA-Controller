@@ -10,7 +10,10 @@ interface dmaInternalSignalsIf(input CLK, RESET)
 
   modport TimingControl(
     output AssertDACK,
-    output DeassertDACK
+    output DeassertDACK,
+    output intEOP,
+    output LoadAddr,
+    output ProgramCondition
   );
 
   modport PriorityLogic(
@@ -18,5 +21,10 @@ interface dmaInternalSignalsIf(input CLK, RESET)
     input DeassertDACK,
   );
 
+  modport DataPath(
+    input intEOP,
+    input LoadAddr,
+    input ProgramCondition,
+  );
 
 endinterface
