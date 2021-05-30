@@ -40,7 +40,6 @@ interface dmaInternalRegistersIf;
 
   modport TimingControl(
     input modeReg,
-    input statusReg
   );
 
   modport PriorityLogic(

@@ -85,34 +85,34 @@ module TimingAndControl(CPUinterface.TimingControl TCcpuIf, CPUinterface.Priorit
 
             PLcpuIf.DACK0:
             begin
-              cpuIf.IOR_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.MEMW_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.IOW_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
-              cpuIf.MEMR_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.modeReg[0].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.modeReg[0].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.modeReg[0].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.modeReg[0].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
             PLcpuIf.DACK1:
             begin
-              cpuIf.IOR_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.MEMW_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.IOW_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
-              cpuIf.MEMR_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.modeReg[1].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.modeReg[1].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.modeReg[1].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.modeReg[1].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
             PLcpuIf.DACK2:
             begin
-              cpuIf.IOR_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.MEMW_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.IOW_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
-              cpuIf.MEMR_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.modeReg[2].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.modeReg[2].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.modeReg[2].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.modeReg[2].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
             PLcpuIf.DACK3:
             begin
-              cpuIf.IOR_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.MEMW_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
-              cpuIf.IOW_N = (intRegIf.mode[3].transferType == 2'b10)? 1'b0 : 1'bz;
-              cpuIf.MEMR_N = (intRegIf.mode[3].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.IOR_N = (intRegIf.modeReg[3].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.MEMW_N = (intRegIf.modeReg[3].transferType == 2'b01)? 1'b0 : 1'bz;
+              cpuIf.IOW_N = (intRegIf.modeReg[3].transferType == 2'b10)? 1'b0 : 1'bz;
+              cpuIf.MEMR_N = (intRegIf.modeReg[3].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
           endcase
