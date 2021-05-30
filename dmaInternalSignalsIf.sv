@@ -1,6 +1,6 @@
-interface dmaInternalSignalsIf(input CLK, RESET)
+interface dmaInternalSignalsIf;
 
-  logic ProgramCondition = 1'b0;
+  logic ProgramCondition;
   logic LoadAddr;
 
   logic AssertDACK;

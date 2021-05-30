@@ -1,4 +1,4 @@
-interface dmaInternalRegistersIf(input logic CLK, RESET);
+interface dmaInternalRegistersIf;
 
   struct packed{logic c0ReachedTC; //1 - Channel 0 has reached Terminal Count
                 logic c1ReachedTC; //1 - Channel 1 has reached Terminal Count
