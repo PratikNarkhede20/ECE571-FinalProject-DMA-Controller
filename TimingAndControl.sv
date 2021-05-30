@@ -1,7 +1,7 @@
 module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf.TimingControl intRegIf);
 
   logic ProgramCondition = 1'b0; //INTERNAL SIGNAL
-  logic HLDA; //INTERNAL SIGNAL
+  logic CheckHLDA; //INTERNAL SIGNAL
   logic HRQ; //INTERNAL SIGNAL
   logic LoadAddr; //INTERNAL SIGNAL
   logic AssertDACK; //INTERNAL SIGNAL
@@ -39,7 +39,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
       unique case (1'b1)
         State[SIIndex]:	if (DREQ0 || DREQ1 || DREQ2 || DREQ3)
           NextState = SO;
-        State[SOIndex]:	if (HLDA)
+        State[SOIndex]:	if (CheckHLDA)
           NextState <= S1;
         else if (!extEOP)
           Next State <= SI;
