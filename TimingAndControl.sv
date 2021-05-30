@@ -1,12 +1,12 @@
-module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf.TimingControl intRegIf);
+module TimingAndControl(CPUinterface.TimingControl TCcpuIf, CPUinterface.PriorityLogic PLcpuIf dmaInternalRegistersIf.TimingControl intRegIf);
 
   logic ProgramCondition = 1'b0; //INTERNAL SIGNAL
-  logic CheckHLDA; //INTERNAL SIGNAL
-  logic HRQ; //INTERNAL SIGNAL
+  //logic CheckHLDA; //INTERNAL SIGNAL
+  //logic HRQ; //INTERNAL SIGNAL
   logic LoadAddr; //INTERNAL SIGNAL
   logic AssertDACK; //INTERNAL SIGNAL
   logic DeassertDACK; //INTERNAL SIGNAL
-  logic DREQ0, DREQ1, DREQ2, DREQ3; //INTERNAL SIGNAL
+  //logic DREQ0, DREQ1, DREQ2, DREQ3; //INTERNAL SIGNAL
   logic intEOP; //INTERNAL SIGNAL
 
   enum {SIIndex = 0,
@@ -37,9 +37,9 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
     begin
       NextState = State;
       unique case (1'b1)
-        State[SIIndex]:	if (DREQ0 || DREQ1 || DREQ2 || DREQ3)
+        State[SIIndex]:	if (PLcpuIf.DREQ0 || PLcpuIf.DREQ1 || PLcpuIf.DREQ2 || PLcpuIf.DREQ3)
           NextState = SO;
-        State[SOIndex]:	if (CheckHLDA)
+        State[SOIndex]:	if (PLcpuIf.HLDA)
           NextState <= S1;
         else if (!extEOP)
           Next State <= SI;
@@ -60,7 +60,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
 
   always_comb
     begin
-      {cpuIf.AEN, cpuIf.ADSTB, HRQ} = 3'b0;
+      {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
       {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
       cpuIf.EOP_N = 1'b1;
       intEOP = 1'b0; LoadAddr = 1'b0; AssertDACK = 1'b0, DeassertDACK = 1'b0;
@@ -69,9 +69,9 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
 
         State[SIIndex]:
           begin
-            if(!cpuIf.CS_N && !HLDA)
+            if(!cpuIf.CS_N && !PLcpuIf.HLDA)
               ProgramCondition = 1'b1;
-            {cpuIf.AEN, cpuIf.ADSTB, HRQ} = 3'b0;
+            {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
             {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
             cpuIf.EOP_N = 1'b1;
             intEOP = 1'b0; LoadAddr = 1'b0; AssertDACK = 1'b0, DeassertDACK = 1'b0;
@@ -79,7 +79,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
 
         State[SOIndex]:
         begin
-          HRQ = 1'b1;
+          PLcpuIf.HRQ = 1'b1;
         end
 
         State[S1Index]:
@@ -92,7 +92,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
         begin
           unique case (1'b1)
 
-            DACK0:
+            PLcpuIf.DACK0:
             begin
               cpuIf.IOR_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
               cpuIf.MEMW_N = (intRegIf.mode[0].transferType == 2'b01)? 1'b0 : 1'bz;
@@ -100,7 +100,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
               cpuIf.MEMR_N = (intRegIf.mode[0].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
-            DACK1:
+            PLcpuIf.DACK1:
             begin
               cpuIf.IOR_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
               cpuIf.MEMW_N = (intRegIf.mode[1].transferType == 2'b01)? 1'b0 : 1'bz;
@@ -108,7 +108,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
               cpuIf.MEMR_N = (intRegIf.mode[1].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
-            DACK2:
+            PLcpuIf.DACK2:
             begin
               cpuIf.IOR_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
               cpuIf.MEMW_N = (intRegIf.mode[2].transferType == 2'b01)? 1'b0 : 1'bz;
@@ -116,7 +116,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
               cpuIf.MEMR_N = (intRegIf.mode[2].transferType == 2'b10)? 1'b0 : 1'bz;
             end
 
-            DACK3:
+            PLcpuIf.DACK3:
             begin
               cpuIf.IOR_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;
               cpuIf.MEMW_N = (intRegIf.mode[3].transferType == 2'b01)? 1'b0 : 1'bz;

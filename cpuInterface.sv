@@ -28,13 +28,11 @@ interface cpuInterface(input CLK, RESET);
     input RESET,
     input CS_N,
     input READY,
-    input HLDA,
 
     inout EOP_N,
     inout IOR_N,
     inout IOW_N,
 
-    output HRQ,
     output AEN,
     output ADSTB,
     output MEMR_N,
@@ -42,6 +40,8 @@ interface cpuInterface(input CLK, RESET);
   );
 
   modport PriorityLogic(
+    input CLK,
+    input RESET
     input DREQ0,
     input DREQ1,
     input DREQ2,

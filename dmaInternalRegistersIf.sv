@@ -37,24 +37,19 @@ interface dmaInternalRegistersIf(input logic CLK, RESET);
                 logic requestBit           ; //0-Reset Request bit, 1-Set Request bit
                } requestReg;
 
+
+  modport TimingControl(
+    input modeReg,
+    input statusReg
+  );
+
   modport PriorityLogic(
-    input CLK,
-    input RESET,
     input commandReg,
     input maskReg,
     input requestReg
   );
 
-  modport TimingControl(
-    input CLK,
-    input RESET,
-    input modeReg,
-    input statusReg
-  );
-
   modport DataPath(
-    input CLK,
-    input RESET,
     input commandReg,
     input modeReg,
     input requestReg);
