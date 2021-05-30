@@ -59,7 +59,12 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
 
   always_comb
     begin
-      {/*Insert FSM outputs*/} = 4'b0;
+      {cpuIf.AEN, cpuIf.ADSTB, cpuIf.HRQ} = 3'b0;
+      {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
+      cpuIf.EOP_N = 1'b1;
+      {cpuIf.DACK0, cpuIf.DACK1, cpuIf.DACK2, cpuIf.DACK3} = 4'b0;
+      intEOP = 1'b0; LoadAddr = 1'b0; LoadDACK = 1'b0;
+      
       unique case (1'b1)
 
         State[SIIndex]:
@@ -70,6 +75,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
             {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
             cpuIf.EOP_N = 1'b1;
             {cpuIf.DACK0, cpuIf.DACK1, cpuIf.DACK2, cpuIf.DACK3} = 4'b0;
+            intEOP = 1'b0; LoadAddr = 1'b0; LoadDACK = 1'b0;
           end
 
         State[SOIndex]:
