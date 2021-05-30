@@ -4,7 +4,8 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
   logic HLDA; //INTERNAL SIGNAL
   logic HRQ; //INTERNAL SIGNAL
   logic LoadAddr; //INTERNAL SIGNAL
-  logic LoadDACK; //INTERNAL SIGNAL
+  logic AssertDACK; //INTERNAL SIGNAL
+  logic DeassertDACK; //INTERNAL SIGNAL
   logic DREQ0, DREQ1, DREQ2, DREQ3; //INTERNAL SIGNAL
   logic intEOP; //INTERNAL SIGNAL
 
@@ -59,23 +60,21 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
 
   always_comb
     begin
-      {cpuIf.AEN, cpuIf.ADSTB, cpuIf.HRQ} = 3'b0;
+      {cpuIf.AEN, cpuIf.ADSTB, HRQ} = 3'b0;
       {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
       cpuIf.EOP_N = 1'b1;
-      {cpuIf.DACK0, cpuIf.DACK1, cpuIf.DACK2, cpuIf.DACK3} = 4'b0;
-      intEOP = 1'b0; LoadAddr = 1'b0; LoadDACK = 1'b0;
-      
+      intEOP = 1'b0; LoadAddr = 1'b0; AssertDACK = 1'b0, DeassertDACK = 1'b0;
+
       unique case (1'b1)
 
         State[SIIndex]:
           begin
             if(!cpuIf.CS_N && !HLDA)
               ProgramCondition = 1'b1;
-            {cpuIf.AEN, cpuIf.ADSTB, cpuIf.HRQ} = 3'b0;
+            {cpuIf.AEN, cpuIf.ADSTB, HRQ} = 3'b0;
             {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
             cpuIf.EOP_N = 1'b1;
-            {cpuIf.DACK0, cpuIf.DACK1, cpuIf.DACK2, cpuIf.DACK3} = 4'b0;
-            intEOP = 1'b0; LoadAddr = 1'b0; LoadDACK = 1'b0;
+            intEOP = 1'b0; LoadAddr = 1'b0; AssertDACK = 1'b0, DeassertDACK = 1'b0;
           end
 
         State[SOIndex]:
@@ -86,7 +85,7 @@ module TimingAndControl(CPUinterface.TimingControl cpuIf, dmaInternalRegistersIf
         State[S1Index]:
         begin
           ProgramCondition = 1'b0;
-          {cpuIf.AEN, cpuIf.ADSTB, LoadAddr, LoadDACK} = 4'b1;
+          {cpuIf.AEN, cpuIf.ADSTB, LoadAddr, AssertDACK} = 4'b1;
         end
 
         State[S2Index]:
