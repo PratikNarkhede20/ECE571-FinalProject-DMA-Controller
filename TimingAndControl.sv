@@ -12,40 +12,40 @@ module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorit
                     S1 = 6'b000001 << S1Index,
                     S2 = 6'b000001 << S2Index,
                     S3 = 6'b000001 << S3Index,
-                    S4 = 6'b000001 << S4Index} State, NextState;
+                    S4 = 6'b000001 << S4Index} state, nextState;
 
   //Reset Condition
   always_ff @(posedge CLK)
     begin
-      if (Reset)
-        State <= SI;
+      if (RESET)
+        state <= SI;
       else
-        State <= NextState;
+        state <= nextState;
     end
 
-  //Next State Logic
+  //Next state Logic
   always_comb
     begin
-      NextState = State;
+      nextState = state;
       unique case (1'b1)
-        State[SIIndex]:	if (PLcpuIf.DREQ0 || PLcpuIf.DREQ1 || PLcpuIf.DREQ2 || PLcpuIf.DREQ3)
-          NextState = SO;
-        State[SOIndex]:	if (PLcpuIf.HLDA)
-          NextState <= S1;
+        state[SIIndex]:	if (PLcpuIf.DREQ0 || PLcpuIf.DREQ1 || PLcpuIf.DREQ2 || PLcpuIf.DREQ3)
+          nextState = SO;
+        state[SOIndex]:	if (PLcpuIf.HLDA)
+          nextState <= S1;
         else if (!extEOP)
-          Next State <= SI;
+          Next state <= SI;
         else
-          NextState <= S0;
-        State[S1Index]:	if (!extEOP)
-          NextState <= SI;
+          nextState <= S0;
+        state[S1Index]:	if (!extEOP)
+          nextState <= SI;
         else
-          NextState <= S2;
-        State[S2Index]:	if (!extEOP)
-          NextState <= SI;
+          nextState <= S2;
+        state[S2Index]:	if (!extEOP)
+          nextState <= SI;
         else
-          NextState <= S4;
-        State[S4Index]:
-          NextState <= SI;
+          nextState <= S4;
+        state[S4Index]:
+          nextState <= SI;
       endcase
     end
 
@@ -58,7 +58,7 @@ module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorit
 
       unique case (1'b1)
 
-        State[SIIndex]:
+        state[SIIndex]:
           begin
             if(!cpuIf.CS_N && !PLcpuIf.HLDA)
               intSigIf.programCondition = 1'b1;
@@ -68,18 +68,18 @@ module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorit
             intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0, intSigIf.deassertDACK = 1'b0;
           end
 
-        State[SOIndex]:
+        state[SOIndex]:
         begin
           PLcpuIf.HRQ = 1'b1;
         end
 
-        State[S1Index]:
+        state[S1Index]:
         begin
           intSigIf.programCondition = 1'b0;
           {cpuIf.AEN, cpuIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1;
         end
 
-        State[S2Index]:
+        state[S2Index]:
         begin
           unique case (1'b1)
 
@@ -119,7 +119,7 @@ module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorit
 
         end
 
-        State[S4Index]:
+        state[S4Index]:
         begin
           cpuIf.IOR_N = (IOR_N == 1'b0)? 1'b1 : 1'bz;
           cpuIf.MEMW_N = (MEMW_N == 1'b0)? 1'b1 : 1'bz;
