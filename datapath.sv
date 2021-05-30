@@ -1,28 +1,26 @@
-module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf);
+module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath intRegIf);
 
-  import dmaInternalRegistersPkg :: baseAddress,
-    dmaInternalRegistersPkg :: baseWordCount,
-    dmaInternalRegistersPkg :: currentAddress,
-    dmaInternalRegistersPkg :: currentWordCount,
-    dmaInternalRegistersPkg :: temporaryAddress,
-    dmaInternalRegistersPkg :: temporaryWordCount,
-    dmaInternalRegistersPkg :: temporary;
+  logic [15 : 0] baseAddressReg        [3 : 0];
+  logic [15 : 0] baseWordCountReg      [3 : 0];
+  logic [15 : 0] currentAddressReg     [3 : 0];
+  logic [15 : 0] currentWordCountReg   [3 : 0];
+  logic [15 : 0] temporaryAddressReg          ;
+  logic [15 : 0] temporaryWordCountReg        ;
+  logic [7  : 0] temporaryReg                 ;
 
   logic [7 : 0] writeBuffer;
-  logic [7 : 0] readBuffer;
+  logic [7 : 0] readBuffer ;
 
-  logic [3 : 0] ioDataBuffer;
-  logic [3 : 0] ioAddressBuffer;
+  logic [3 : 0] ioDataBuffer	   ;
+  logic [3 : 0] ioAddressBuffer	   ;
   logic [3 : 0] outputAddressBuffer;
-
-  logic internalFF;
 
   //write Command Register
   always_ff@(posedge cpuIF.CLK)
     begin
       if(cpuIF.RESET)
         intRegIf.command <= '0;
-      else if()
+      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
         intRegIf.command <= ioDataBuffer;
       else
         intRegIf.command <= intRegIf.command;
@@ -32,319 +30,134 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf);
 
 
 
-  //write Request Register
+  //read Status Register
 
 
 
-  //write Status Register
-
-
-
-
-  //write Base Address Register
+  //Base Address Register
   always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
         begin
-          baseAddress[0] <= '0;
-          baseAddress[1] <= '0;
-          baseAddress[2] <= '0;
-          baseAddress[3] <= '0;
+          for(int i=0; i<=3; i=i+1)
+            baseAddressReg[i] <= '0;
         end
 
-      //write Base Address for Channel0
-      else if()
+      //write Base Address Register
+      //Register Code for writing Base Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 )
         begin
           if(internalFF)
-            baseAddress[0][15:8] <= writeBuffer;
+            baseAddressReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
           else
-            baseAddress[0][7:0] <= writeBuffer;
-        end
-
-      //write Base Address for Channel1
-      else if()
-        begin
-          if(internalFF)
-            baseAddress[1][15:8] <= writeBuffer;
-          else
-            baseAddress[1][7:0] <= writeBuffer;
-        end
-
-      //write Base Address for Channel2
-      else if()
-        begin
-          if(internalFF)
-            baseAddress[2][15:8] <= writeBuffer;
-          else
-            baseAddress[2][7:0] <= writeBuffer;
-        end
-
-      //write Base Address for Channel3
-      else if()
-        begin
-          if(internalFF)
-            baseAddress[3][15:8] <= writeBuffer;
-          else
-            baseAddress[3][7:0] <= writeBuffer;
+            baseAddressReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
         end
 
       else
         begin
+          for(int i=0; i<=3; i=i+1)
+            baseAddressReg[i] <= baseAddressReg[i];
         end
     end
 
-  //write Current Address Register
+  //Current Address Register
   always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
         begin
-          currentAddress[0] <= '0;
-          currentAddress[1] <= '0;
-          currentAddress[2] <= '0;
-          currentAddress[3] <= '0;
+          for(int i=0; i<=3; i=i+1)
+            currentAddressReg[i] <= '0;
         end
 
-      //write Current Address for Channel0
-      else if()
+      //write Current Address Register
+      //Register Code for writing Current Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 )
         begin
           if(internalFF)
-            currentAddress[0][15:8] <= writeBuffer;
+            currentAddressReg[0][15:8] <= writeBuffer;
           else
-            currentAddress[0][7:0] <= writeBuffer;
+            currentAddressReg[0][7:0] <= writeBuffer;
         end
 
-      //write Current Address for Channel1
-      else if()
+      //read Current Address Register
+      //Register Code for writing Current Address Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
-            currentAddress[1][15:8] <= writeBuffer;
+            readBuffer <= currentAddressReg[0][15:8];
           else
-            currentAddress[1][7:0] <= writeBuffer;
-        end
-
-      //write Current Address for Channel2
-      else if()
-        begin
-          if(internalFF)
-            currentAddress[2][15:8] <= writeBuffer;
-          else
-            currentAddress[2][7:0] <= writeBuffer;
-        end
-
-      //write Current Address for Channel3
-      else if()
-        begin
-          if(internalFF)
-            currentAddress[3][15:8] <= writeBuffer;
-          else
-            currentAddress[3][7:0] <= writeBuffer;
+            readBuffer <= currentAddressReg[0][7:0];
         end
 
       else
         begin
+          for(int i=0; i<=3; i=i+1)
+            currentAddressReg[i] <= currentAddressReg[i];
         end
+
     end
 
 
-  //read Current Address Register
-  always_ff@(posedge cpuIf.CLK)
-    begin
-      //read Current Address for Channel0
-      if()
-        begin
-          if(internalFF)
-            readBuffer <= currentAddress[0][15:8];
-          else
-            readBuffer <= currentAddress[0][7:0];
-        end
-
-      //read Current Address for Channel1
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentAddress[1][15:8];
-          else
-            readBuffer <= currentAddress[1][7:0];
-        end
-
-      //read Current Address for Channel2
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentAddress[2][15:8];
-          else
-            readBuffer <= currentAddress[2][7:0];
-        end
-
-      //read Current Address for Channel3
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentAddress[3][15:8];
-          else
-            readBuffer <= currentAddress[3][7:0];
-        end
-
-      else
-        begin
-        end
-    end
-
-  //write Base Word Count
+  //Base Word Count Register
   always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
         begin
-          baseWordCount[0] <= '0;
-          baseWordCount[1] <= '0;
-          baseWordCount[2] <= '0;
-          baseWordCount[3] <= '0;
+          for(int i=0; i<=3; i=i+1)
+            baseWordCountReg[i] <= '0;
         end
 
-      //write Base Word Count for Channel0
-      else if()
+      //write Base Word Count Register
+      //Register Code for writing Base Word Count Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
-            baseWordCount[0][15:8] <= writeBuffer;
+            baseWordCountReg[0][15:8] <= writeBuffer;
           else
-            baseWordCount[0][7:0] <= writeBuffer;
-        end
-
-      //write Base Word Count for Channel1
-      else if()
-        begin
-          if(internalFF)
-            baseWordCount[1][15:8] <= writeBuffer;
-          else
-            baseWordCount[1][7:0] <= writeBuffer;
-        end
-
-      //write Base Word Count for Channel2
-      else if()
-        begin
-          if(internalFF)
-            baseWordCount[2][15:8] <= writeBuffer;
-          else
-            baseWordCount[2][7:0] <= writeBuffer;
-        end
-
-      //write Base Word Count for Channel3
-      else if()
-        begin
-          if(internalFF)
-            baseWordCount[3][15:8] <= writeBuffer;
-          else
-            baseWordCount[3][7:0] <= writeBuffer;
+            baseWordCountReg[0][7:0] <= writeBuffer;
         end
 
       else
         begin
+          for(int i=0; i<=3; i=i+1)
+            baseWordCountReg[i] <= baseWordCountReg[i];
         end
     end
 
-  //write Current Word Count
+  //Current Word Count Register
   always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
         begin
-          currentWordCount[0] <= '0;
-          currentWordCount[1] <= '0;
-          currentWordCount[2] <= '0;
-          currentWordCount[3] <= '0;
+          for(int i=0; i<=3; i=i+1)
+            currentWordCountReg[i] <= '0;
         end
 
-      //write Current Word Count for Channel0
-      else if()
+      //write Current Word Count Register
+      //Register Code for writing Current Word Count Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A0 )
         begin
           if(internalFF)
-            currentWordCount[0][15:8] <= writeBuffer;
+            currentWordCountReg[0][15:8] <= writeBuffer;
           else
-            currentWordCount[0][7:0] <= writeBuffer;
+            currentWordCountReg[0][7:0] <= writeBuffer;
         end
 
-      //write Current Word Count for Channel1
-      else if()
+      //read Current Word Count Register
+      //Register Code for writing Current Word Count Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
-            currentWordCount[1][15:8] <= writeBuffer;
+            readBuffer <= currentWordCountReg[0][15:8];
           else
-            currentWordCount[1][7:0] <= writeBuffer;
-        end
-
-      //write Current Word Count for Channel2
-      else if()
-        begin
-          if(internalFF)
-            currentWordCount[2][15:8] <= writeBuffer;
-          else
-            currentWordCount[2][7:0] <= writeBuffer;
-        end
-
-      //write Current Word Count for Channel3
-      else if()
-        begin
-          if(internalFF)
-            currentWordCount[3][15:8] <= writeBuffer;
-          else
-            currentWordCount[3][7:0] <= writeBuffer;
+            readBuffer <= currentWordCountReg[0][7:0];
         end
 
       else
         begin
+          for(int i=0; i<=3; i=i+1)
+            currentWordCountReg[i] <= currentWordCountReg[i],
         end
     end
-
-  //read Current Word Count
-  always_ff@(posedge cpuIf.CLK)
-    begin
-      if(cpuIf.RESET)
-        begin
-          currentWordCount[0] <= '0;
-          currentWordCount[1] <= '0;
-          currentWordCount[2] <= '0;
-          currentWordCount[3] <= '0;
-        end
-
-      //read Current Word Count for Channel0
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentWordCount[0][15:8];
-          else
-            readBuffer <= currentWordCount[0][7:0];
-        end
-
-      //read Current Word Count for Channel1
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentWordCount[1][15:8];
-          else
-            readBuffer <= currentWordCount[1][7:0];
-        end
-
-      //read Current Word Count for Channel2
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentWordCount[2][15:8];
-          else
-            readBuffer <= currentWordCount[2][7:0];
-        end
-
-      //read Current Word Count for Channel3
-      else if()
-        begin
-          if(internalFF)
-            readBuffer <= currentWordCount[3][15:8];
-          else
-            readBuffer <= currentWordCount[3][7:0];
-        end
-
-      else
-        begin
-        end
-    end
-
 
 endmodule
