@@ -8,7 +8,7 @@ interface dmaInternalSignalsIf;
 
   logic intEOP;
 
-  modport timingControl(
+  modport timingAndControl(
     output assertDACK,
     output deassertDACK,
     output intEOP,

@@ -29,7 +29,7 @@ interface cpuInterface(input CLK, RESET);
   wire  A7;
   wire  [7 : 0] DB     ;
 
-  modport timingControl(
+  modport timingAndControl(
     input CLK,
     input RESET,
     input CS_N,

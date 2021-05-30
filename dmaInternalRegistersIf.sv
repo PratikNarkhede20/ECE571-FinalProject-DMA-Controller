@@ -41,8 +41,10 @@ interface dmaInternalRegistersIf;
       logic [1 : 0] channelSelect; //00-Select Channel0, 01-Select Channel1, 10-Select Channel2, 11-Select Channel3
     } requestReg;
 
+    logic [15 : 0] temporaryWordCountReg;
 
-  modport timingControl(
+
+  modport timingAndControl(
     input modeReg
   );
 

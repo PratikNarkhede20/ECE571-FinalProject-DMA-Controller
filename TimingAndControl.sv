@@ -1,4 +1,4 @@
-module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
+module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
 
   enum {SIIndex = 0,
         SOIndex = 1,
@@ -126,9 +126,9 @@ module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorit
           cpuIf.IOW_N = (IOW_N == 1'b0)? 1'b1 : 1'bz;
           cpuIf.MEMR_N = (MEMR_N == 1'b0)? 1'b1 : 1'bz;
 
-          intRegIf.temporaryWordCount = intRegIf.temporaryWordCount - 1'b1;
+          intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
           intSigIf.updatecurrentWordCountReg = 1'b1;
-          if (intRegIf.temporaryWordCount == 0)
+          if (intRegIf.temporaryWordCountReg == 0)
             intSigIf.intEOP = 1'b1;
 
         end
