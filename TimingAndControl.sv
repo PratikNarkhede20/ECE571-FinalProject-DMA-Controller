@@ -127,7 +127,7 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
           cpuIf.MEMR_N = (MEMR_N == 1'b0)? 1'b1 : 1'bz;
 
           intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
-          intSigIf.updatecurrentWordCountReg = 1'b1;
+          intSigIf.updateCurrentWordCountReg = 1'b1;
           if (intRegIf.temporaryWordCountReg == 0)
             intSigIf.intEOP = 1'b1;
 

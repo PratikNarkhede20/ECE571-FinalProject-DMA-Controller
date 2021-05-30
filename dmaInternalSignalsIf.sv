@@ -7,7 +7,7 @@ interface dmaInternalSignalsIf;
   logic deassertDACK;
 
   logic intEOP;
-  logic updatecurrentWordCountReg;
+  logic updateCurrentWordCountReg ;
 
   modport timingAndControl(
     output assertDACK,
@@ -15,19 +15,19 @@ interface dmaInternalSignalsIf;
     output intEOP,
     output loadAddr,
     output programCondition,
-    output updatecurrentWordCountReg
+    output updateCurrentWordCountReg
   );
 
   modport priorityLogic(
     input assertDACK,
-    input deassertDACK,
+    input deassertDACK
   );
 
   modport dataPath(
     input intEOP,
     input loadAddr,
     input programCondition,
-    input updatecurrentWordCountReg
+    input updateCurrentWordCountReg
   );
 
 endinterface

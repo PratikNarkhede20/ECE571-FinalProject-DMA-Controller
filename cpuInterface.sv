@@ -68,7 +68,15 @@ interface cpuInterface(input CLK, RESET);
     input A0,
     input A1,
     input A2,
-    input A3);
+    input A3,
+    input DREQ0,
+    input DREQ1,
+    input DREQ2,
+    input DREQ3,
+    input DACK0,
+    input DACK1,
+    input DACK2,
+    input DACK3);
 
 
 endinterface
