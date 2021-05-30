@@ -1,26 +1,32 @@
 interface cpuInterface(input CLK, RESET);
 
-  logic 		    IOR_N  ;
-  logic 		    IOW_N  ;
-  logic 		    MEMR_N ;
-  logic 		    MEMW_N ;
-  logic 		    READY  ;
-  logic 		    HLDA   ;
-  logic 		    ADSTB  ;
-  logic 		    AEN    ;
-  logic 	     	HRQ    ;
-  logic 		    CS_N   ;
-  logic 		    DACK0  ;
-  logic 		    DACK1  ;
-  logic 		    DACK2  ;
-  logic 		    DACK3  ;
-  logic 		    DREQ0  ;
-  logic 		    DREQ1  ;
-  logic 		    DREQ2  ;
-  logic		      DREQ3  ;
-  wire 			    EOP_N  ;
-  wire  [3 : 0] ADDR_LO;
-  logic [3 : 0] ADDR_UP;
+  wire 			IOR_N  ;
+  wire 			IOW_N  ;
+  logic 		MEMR_N ;
+  logic 		MEMW_N ;
+  logic 		READY  ;
+  logic 		HLDA   ;
+  logic 		ADSTB  ;
+  logic 		AEN    ;
+  logic 		HRQ    ;
+  logic 		CS_N   ;
+  logic 		DACK0  ;
+  logic 		DACK1  ;
+  logic 		DACK2  ;
+  logic 		DACK3  ;
+  logic 		DREQ0  ;
+  logic 		DREQ1  ;
+  logic 		DREQ2  ;
+  logic		    DREQ3  ;
+  wire 			EOP_N  ;
+  wire  A0;
+  wire  A1;
+  wire  A2;
+  wire  A3;
+  wire  A4;
+  wire  A5;
+  wire  A6;
+  wire  A7;
   wire  [7 : 0] DB     ;
 
   modport TimingControl(
@@ -40,8 +46,6 @@ interface cpuInterface(input CLK, RESET);
   );
 
   modport PriorityLogic(
-    input CLK,
-    input RESET
     input DREQ0,
     input DREQ1,
     input DREQ2,
@@ -57,16 +61,14 @@ interface cpuInterface(input CLK, RESET);
 
   modport DataPath(
     input CLK,
-    input RESET
-    input CS_N
+    input RESET,
+    input CS_N,
     input IOR_N,
-    input IOR_W,
+    input IOW_N,
     input A0,
     input A1,
     input A2,
     input A3);
-
-
 
 
 endinterface

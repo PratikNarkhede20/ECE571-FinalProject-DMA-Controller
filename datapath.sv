@@ -1,3 +1,5 @@
+`include "dmaInternalRegistersIf.sv";
+`include "cpuInterface.sv";
 module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath intRegIf);
 
   logic [15 : 0] baseAddressReg        [3 : 0];
@@ -15,22 +17,63 @@ module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath int
   logic [3 : 0] ioAddressBuffer	   ;
   logic [3 : 0] outputAddressBuffer;
 
-  //write Command Register
-  always_ff@(posedge cpuIF.CLK)
+  logic internalFF;
+
+  //Command Register
+  always_ff@(posedge cpuIf.CLK)
     begin
-      if(cpuIF.RESET)
-        intRegIf.command <= '0;
+      if(cpuIf.RESET)
+        intRegIf.commandReg <= '0;
+
+      //write Command Register
+      //Register Code for writing Command Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=0 , A0=0.
       else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
-        intRegIf.command <= ioDataBuffer;
+        intRegIf.commandReg <= ioDataBuffer;
+
       else
-        intRegIf.command <= intRegIf.command;
+        intRegIf.commandReg <= intRegIf.commandReg;
     end
 
-  //write Mode Register
+  //Mode Register
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(cpuIf.RESET)
+        begin
+          for(int i=0; i<=3; i=i+1)
+            intRegIf.modeReg[i] <= '0;
+        end
+
+      //write Mode Register
+      //Register Code for writing Mode Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=1 , A0=1.
+      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0 )
+        intRegIf.modeReg[ioDataBuffer[1:0]] <= ioDataBuffer[7:2];
+
+      else
+        begin
+          for(int i=0; i<=3; i=i+1)
+            intRegIf.modeReg[i] <= intRegIf.modeReg[i];
+        end
+    end
 
 
 
-  //read Status Register
+  //Status Register
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(cpuIf.RESET)
+        begin
+          for(int i=0; i<=3; i=i+1)
+            intRegIf.statusReg[i] <= '0;
+        end
+
+      //read Mode Register
+      //Register Code for reading Mode Register is CS_N=0, IOR_N=0, IOW_N=1, A3=1, A2=0 , A1=0 , A0=0.
+      else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
+        ioDataBuffer <= intRegIf.statusReg;
+
+      else
+        intRegIf.statusReg <= intRegIf.statusReg;
+    end
 
 
 
@@ -80,7 +123,7 @@ module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath int
         end
 
       //read Current Address Register
-      //Register Code for writing Current Address Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      //Register Code for reading Current Address Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
       else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
@@ -144,7 +187,7 @@ module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath int
         end
 
       //read Current Word Count Register
-      //Register Code for writing Current Word Count Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
+      //Register Code for reading Current Word Count Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
       else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
@@ -156,7 +199,7 @@ module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath int
       else
         begin
           for(int i=0; i<=3; i=i+1)
-            currentWordCountReg[i] <= currentWordCountReg[i],
+            currentWordCountReg[i] <= currentWordCountReg[i];
         end
     end
 

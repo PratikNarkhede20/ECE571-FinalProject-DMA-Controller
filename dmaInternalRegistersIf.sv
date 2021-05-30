@@ -20,14 +20,13 @@ interface dmaInternalRegistersIf;
       logic controller    ; //0-Controller Enable, 1-Controller Disable
       logic c0AddressHold ; //0-Channel 0 address hold disabled,  1-Channel 0 address hold enable, X-if MemToMem=0
       logic memToMem      ; //0 - Memory to Memory disable, 1 - Memory to Memory enable
-    } command;
+    } commandReg;
 
     struct packed{
       logic [1 : 0] modeSelect        ; //00-Demand Mode , 01-Single Mode, 10-Block Mode, 11-Cascade Mode
       logic         addressSelect     ; //0-Address Increment select, 1-Address Drecement select
       logic         autoinitialization; //0-Autoinitialization Disable, 1-Autoinitialization Enable
       logic [1 : 0] transferType      ; //00-Verify transfer, 01-Write Transfer, 10-Read Transfer, 11-illegal, XX-if ModeSelect=11
-      logic [1 : 0] channelSelect     ; //00-Channel0, 01-Channel1, 10-Channel2, 11-Channel3
     } modeReg [3 : 0];
 
     struct packed{
@@ -44,7 +43,7 @@ interface dmaInternalRegistersIf;
 
 
   modport TimingControl(
-    input modeReg,
+    input modeReg
   );
 
   modport PriorityLogic(
