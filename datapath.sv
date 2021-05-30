@@ -1,6 +1,6 @@
 `include "dmaInternalRegistersIf.sv";
 `include "cpuInterface.sv";
-module datapath(cpuInterface.DataPath cpuIf, dmaInternalRegistersIf.DataPath intRegIf);
+module dataPath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf);
 
   logic [15 : 0] baseAddressReg        [3 : 0];
   logic [15 : 0] baseWordCountReg      [3 : 0];

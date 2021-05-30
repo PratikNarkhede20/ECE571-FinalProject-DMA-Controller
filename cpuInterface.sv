@@ -29,7 +29,7 @@ interface cpuInterface(input CLK, RESET);
   wire  A7;
   wire  [7 : 0] DB     ;
 
-  modport TimingControl(
+  modport timingControl(
     input CLK,
     input RESET,
     input CS_N,
@@ -45,7 +45,7 @@ interface cpuInterface(input CLK, RESET);
     output MEMW_N
   );
 
-  modport PriorityLogic(
+  modport priorityLogic(
     input DREQ0,
     input DREQ1,
     input DREQ2,
@@ -59,7 +59,7 @@ interface cpuInterface(input CLK, RESET);
     output DACK3
   );
 
-  modport DataPath(
+  modport dataPath(
     input CLK,
     input RESET,
     input CS_N,

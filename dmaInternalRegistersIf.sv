@@ -42,17 +42,17 @@ interface dmaInternalRegistersIf;
     } requestReg;
 
 
-  modport TimingControl(
+  modport timingControl(
     input modeReg
   );
 
-  modport PriorityLogic(
+  modport priorityLogic(
     input commandReg,
     input maskReg,
     input requestReg
   );
 
-  modport DataPath(
+  modport dataPath(
     input commandReg,
     input modeReg,
     input requestReg

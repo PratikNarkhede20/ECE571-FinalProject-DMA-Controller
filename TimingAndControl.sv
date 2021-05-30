@@ -1,11 +1,11 @@
-module TimingAndControl(CPUinterface.TimingControl TCcpuIf, CPUinterface.PriorityLogic PLcpuIf, dmaInternalRegistersIf.TimingControl intRegIf, dmaInternalSignalsIf.TimingControl intSigIf);
+module timingAndControl(CPUinterface.timingControl TCcpuIf, CPUinterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
 
   enum {SIIndex = 0,
         SOIndex = 1,
         S1Index = 2,
         S2Index = 3,
         S3Index = 4,
-        S4Index = 5} StateIndex;
+        S4Index = 5} stateIndex;
 
   enum logic [5:0] {SI = 6'b000001 << SIIndex,
                     SO = 6'b000001 << SOIndex,
@@ -54,18 +54,18 @@ module TimingAndControl(CPUinterface.TimingControl TCcpuIf, CPUinterface.Priorit
       {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
       {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
       cpuIf.EOP_N = 1'b1;
-      intSigIf.intEOP = 1'b0; intSigIf.LoadAddr = 1'b0; intSigIf.AssertDACK = 1'b0, intSigIf.DeassertDACK = 1'b0;
+      intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0, intSigIf.deassertDACK = 1'b0;
 
       unique case (1'b1)
 
         State[SIIndex]:
           begin
             if(!cpuIf.CS_N && !PLcpuIf.HLDA)
-              intSigIf.ProgramCondition = 1'b1;
+              intSigIf.programCondition = 1'b1;
             {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
             {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
             cpuIf.EOP_N = 1'b1;
-            intSigIf.intEOP = 1'b0; intSigIf.LoadAddr = 1'b0; intSigIf.AssertDACK = 1'b0, intSigIf.DeassertDACK = 1'b0;
+            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0, intSigIf.deassertDACK = 1'b0;
           end
 
         State[SOIndex]:
@@ -75,8 +75,8 @@ module TimingAndControl(CPUinterface.TimingControl TCcpuIf, CPUinterface.Priorit
 
         State[S1Index]:
         begin
-          intSigIf.ProgramCondition = 1'b0;
-          {cpuIf.AEN, cpuIf.ADSTB, intSigIf.LoadAddr, intSigIf.AssertDACK} = 4'b1;
+          intSigIf.programCondition = 1'b0;
+          {cpuIf.AEN, cpuIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1;
         end
 
         State[S2Index]:
@@ -127,6 +127,7 @@ module TimingAndControl(CPUinterface.TimingControl TCcpuIf, CPUinterface.Priorit
           cpuIf.MEMR_N = (MEMR_N == 1'b0)? 1'b1 : 1'bz;
 
           intRegIf.temporaryWordCount = intRegIf.temporaryWordCount - 1'b1;
+          intSigIf.updatecurrentWordCountReg = 1'b1;
           if (intRegIf.temporaryWordCount == 0)
             intSigIf.intEOP = 1'b1;
 
