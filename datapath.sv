@@ -1,6 +1,6 @@
-`include "dmaInternalRegistersIf.sv";
-`include "cpuInterface.sv";
-`include "dmaInternalSignalsIf.sv";
+`include "dmaInternalRegistersIf.sv"
+`include "cpuInterface.sv"
+`include "dmaInternalSignalsIf.sv"
 module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf intSigIf);
 
   logic [15 : 0] baseAddressReg        [3 : 0];
@@ -92,15 +92,15 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
     end
 
   //Temporary Address Register
-  always_ff@(posedge CLK)
+  always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
-        temporaryAddressReg <= '0;
+        intRegIf.temporaryAddressReg <= '0;
 
       else if(intSigIf.loadAddr)
         begin
-          cpuIf.DB <= temporaryAddressReg[15:8];
-          {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= temporaryAddressReg[7:0];
+          cpuIf.DB <= intRegIf.temporaryAddressReg[15:8];
+          {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= intRegIf.temporaryAddressReg[7:0];
         end
 
       else
