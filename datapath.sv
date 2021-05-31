@@ -28,7 +28,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //write Command Register
       //Register Code for writing Command Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=0 , A0=0.
-      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
         intRegIf.commandReg <= ioDataBuffer;
 
       else
@@ -46,7 +46,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //write Mode Register
       //Register Code for writing Mode Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=1 , A0=1.
-      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0 )
         intRegIf.modeReg[ioDataBuffer[1:0]] <= ioDataBuffer[7:2];
 
       else
@@ -66,7 +66,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //read Mode Register
       //Register Code for reading Mode Register is CS_N=0, IOR_N=0, IOW_N=1, A3=1, A2=0 , A1=0 , A0=0.
-      else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
         begin
           ioDataBuffer <= intRegIf.statusReg;
 
@@ -77,10 +77,14 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       //update Status Register
       else if(intSigIf.intEOP)
         begin
-          intRegIf.statusReg.c3Request <= cpuIf.DREQ3;
-          intRegIf.statusReg.c2Request <= cpuIf.DREQ2;
-          intRegIf.statusReg.c1Request <= cpuIf.DREQ1;
-          intRegIf.statusReg.c0Request <= cpuIf.DREQ0;
+          intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ3;
+          intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ2;
+          intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ1;
+          intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ0;
+          intRegIf.statusReg.c3ReachedTC <= (!(|(currentWordCountReg[3]))) ? 1'b1 : 1'b0;
+          intRegIf.statusReg.c2ReachedTC <= (!(|(currentWordCountReg[2]))) ? 1'b1 : 1'b0;
+          intRegIf.statusReg.c1ReachedTC <= (!(|(currentWordCountReg[1]))) ? 1'b1 : 1'b0;
+          intRegIf.statusReg.c0ReachedTC <= (!(|(currentWordCountReg[0]))) ? 1'b1 : 1'b0;
         end
 
       else
@@ -100,7 +104,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //write Base Address Register
       //Register Code for writing Base Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 )
         begin
           if(internalFF)
             baseAddressReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
@@ -126,22 +130,22 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //write Current Address Register
       //Register Code for writing Current Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 )
         begin
           if(internalFF)
-            currentAddressReg[0][15:8] <= writeBuffer;
+            currentAddressReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
           else
-            currentAddressReg[0][7:0] <= writeBuffer;
+            currentAddressReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
         end
 
       //read Current Address Register
       //Register Code for reading Current Address Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
-            readBuffer <= currentAddressReg[0][15:8];
+            readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][15:8];
           else
-            readBuffer <= currentAddressReg[0][7:0];
+            readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][7:0];
         end
 
       else
@@ -164,12 +168,12 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //write Base Word Count Register
       //Register Code for writing Base Word Count Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
-            baseWordCountReg[0][15:8] <= writeBuffer;
+            baseWordCountReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
           else
-            baseWordCountReg[0][7:0] <= writeBuffer;
+            baseWordCountReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
         end
 
       else
@@ -190,17 +194,17 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //write Current Word Count Register
       //Register Code for writing Current Word Count Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      else if( !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A0 )
         begin
           if(internalFF)
-            currentWordCountReg[0][15:8] <= writeBuffer;
+            currentWordCountReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
           else
-            currentWordCountReg[0][7:0] <= writeBuffer;
+            currentWordCountReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
         end
 
       //read Current Word Count Register
       //Register Code for reading Current Word Count Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      else if( !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
+      else if( intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 )
         begin
           if(internalFF)
             readBuffer <= currentWordCountReg[0][15:8];
