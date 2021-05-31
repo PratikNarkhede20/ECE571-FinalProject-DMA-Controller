@@ -42,10 +42,13 @@ interface dmaInternalRegistersIf;
     } requestReg;
 
     logic [15 : 0] temporaryWordCountReg;
+    logic [15 : 0] temporaryAddressReg;
 
 
   modport timingAndControl(
-    input modeReg
+    input modeReg,
+    input temporaryWordCountReg,
+    input temporaryAddressReg
   );
 
   modport priorityLogic(

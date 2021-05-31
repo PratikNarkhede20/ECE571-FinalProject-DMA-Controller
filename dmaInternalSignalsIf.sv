@@ -15,7 +15,8 @@ interface dmaInternalSignalsIf;
     output intEOP,
     output loadAddr,
     output programCondition,
-    output updateCurrentWordCountReg
+    output updateCurrentWordCountReg,
+    output updateCurrentAddressReg
   );
 
   modport priorityLogic(
@@ -27,7 +28,8 @@ interface dmaInternalSignalsIf;
     input intEOP,
     input loadAddr,
     input programCondition,
-    input updateCurrentWordCountReg
+    input updateCurrentWordCountReg,
+    input updateCurrentAddressReg
   );
 
 endinterface

@@ -131,6 +131,9 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
           if (intRegIf.temporaryWordCountReg == 0)
             intSigIf.intEOP = 1'b1;
 
+          intRegIf.temporaryAddressReg = intRegIf.temporaryAddressReg + 1'b1;
+          intSigIf.updateCurrentAddressReg = 1'b1;
+
         end
       endcase
     end
