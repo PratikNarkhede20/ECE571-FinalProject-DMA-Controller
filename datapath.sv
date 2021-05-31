@@ -1,6 +1,6 @@
-`include "dmaInternalRegistersIf.sv";
-`include "cpuInterface.sv";
-`include "dmaInternalSignalsIf.sv";
+`include "dmaInternalRegistersIf.sv"
+`include "cpuInterface.sv"
+`include "dmaInternalSignalsIf.sv"
 module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf intSigIf);
 
   logic [15 : 0] baseAddressReg        [3 : 0];
@@ -14,7 +14,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
   logic [7 : 0] writeBuffer;
   logic [7 : 0] readBuffer ;
 
-  logic [3 : 0] ioDataBuffer	   ;
+  logic [7 : 0] ioDataBuffer	   ;
   logic [3 : 0] ioAddressBuffer	   ;
   logic [3 : 0] outputAddressBuffer;
 

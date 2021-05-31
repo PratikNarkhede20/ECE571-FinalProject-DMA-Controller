@@ -32,15 +32,15 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
           nextState = SO;
         state[SOIndex]:	if (PLcpuIf.HLDA)
           nextState <= S1;
-        else if (!extEOP)
-          Next state <= SI;
+        else if (!TCcpuIf.EOP_N)
+          nextState <= SI;
         else
-          nextState <= S0;
-        state[S1Index]:	if (!extEOP)
+          nextState <= SO;
+        state[S1Index]:	if (!TCcpuIf.EOP_N)
           nextState <= SI;
         else
           nextState <= S2;
-        state[S2Index]:	if (!extEOP)
+        state[S2Index]:	if (!TCcpuIf.EOP_N)
           nextState <= SI;
         else
           nextState <= S4;
@@ -54,7 +54,7 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
       {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
       {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
       cpuIf.EOP_N = 1'b1;
-      intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0, intSigIf.deassertDACK = 1'b0;
+      intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; intSigIf.deassertDACK = 1'b0;
 
       unique case (1'b1)
 
@@ -65,7 +65,7 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
             {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
             {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
             cpuIf.EOP_N = 1'b1;
-            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0, intSigIf.deassertDACK = 1'b0;
+            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; intSigIf.deassertDACK = 1'b0;
           end
 
         state[SOIndex]:
@@ -121,10 +121,10 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
 
         state[S4Index]:
         begin
-          cpuIf.IOR_N = (IOR_N == 1'b0)? 1'b1 : 1'bz;
-          cpuIf.MEMW_N = (MEMW_N == 1'b0)? 1'b1 : 1'bz;
-          cpuIf.IOW_N = (IOW_N == 1'b0)? 1'b1 : 1'bz;
-          cpuIf.MEMR_N = (MEMR_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.IOR_N = (cpuIf.IOR_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.MEMW_N = (cpuIf.MEMW_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.IOW_N = (cpuIf.IOW_N == 1'b0)? 1'b1 : 1'bz;
+          cpuIf.MEMR_N = (cpuIf.MEMR_N == 1'b0)? 1'b1 : 1'bz;
 
           intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
           intSigIf.updateCurrentWordCountReg = 1'b1;
