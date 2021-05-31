@@ -1,6 +1,6 @@
-`include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
-`include "dmaInternalSignalsIf.sv"
+`include "dmaInternalRegistersIf.sv";
+`include "cpuInterface.sv";
+`include "dmaInternalSignalsIf.sv";
 module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf intSigIf);
 
   logic [15 : 0] baseAddressReg        [3 : 0];
@@ -14,11 +14,11 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
   logic [7 : 0] writeBuffer;
   logic [7 : 0] readBuffer ;
 
-  logic [7 : 0] ioDataBuffer	   ;
-  logic [3 : 0] ioAddressBuffer	   ;
-  logic [3 : 0] outputAddressBuffer;
+  //logic [7 : 0] ioDataBuffer	   ;
+  //logic [3 : 0] ioAddressBuffer	   ;
+  //logic [3 : 0] outputAddressBuffer;
 
-  logic internalFF;
+  bit internalFF;
 
   //Command Register
   always_ff@(posedge cpuIf.CLK)
@@ -29,7 +29,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       //write Command Register
       //Register Code for writing Command Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=0 , A0=0.
       else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
-        intRegIf.commandReg <= ioDataBuffer;
+        intRegIf.commandReg <= cpuIf.DB;
 
       else
         intRegIf.commandReg <= intRegIf.commandReg;
@@ -47,7 +47,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       //write Mode Register
       //Register Code for writing Mode Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=1 , A0=1.
       else if( intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0 )
-        intRegIf.modeReg[ioDataBuffer[1:0]] <= ioDataBuffer[7:2];
+        intRegIf.modeReg[cpuIf.DB[1:0]] <= cpuIf.DB[7:2];
 
       else
         begin
@@ -68,7 +68,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       //Register Code for reading Mode Register is CS_N=0, IOR_N=0, IOW_N=1, A3=1, A2=0 , A1=0 , A0=0.
       else if( intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0 )
         begin
-          ioDataBuffer <= intRegIf.statusReg;
+          cpuIf.DB <= intRegIf.statusReg;
 
           //clear status reg after each read
           intRegIf.statusReg <= '0;
@@ -233,6 +233,33 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
             end
 
         end
+    end
+
+  //internal flip flop
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0)
+        internalFF <= 1'b0;
+      else
+        internalFF <= 1'b1;
+    end
+
+  //Write Buffer
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(cpuIf.RESET)
+        writeBuffer <= '0;
+      else
+        writeBuffer <= cpuIf.DB;
+    end
+
+  //read Buffer
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(cpuIf.RESET)
+        readBuffer <= '0;
+      else
+        cpuIf.DB <= readBuffer;
     end
 
 endmodule
