@@ -60,7 +60,9 @@ interface dmaInternalRegistersIf;
   modport dataPath(
     input commandReg,
     input modeReg,
-    input requestReg
+    input requestReg,
+    input temporaryWordCountReg,
+    input temporaryAddressReg
   );
 
 endinterface

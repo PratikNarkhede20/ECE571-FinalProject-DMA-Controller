@@ -7,7 +7,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
   logic [15 : 0] baseWordCountReg      [3 : 0];
   logic [15 : 0] currentAddressReg     [3 : 0];
   logic [15 : 0] currentWordCountReg   [3 : 0];
-  logic [15 : 0] temporaryAddressReg          ;
+  //logic [15 : 0] temporaryAddressReg          ;
   //logic [15 : 0] temporaryWordCountReg        ;
   logic [7  : 0] temporaryReg                 ;
 
@@ -91,7 +91,37 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
         intRegIf.statusReg <= intRegIf.statusReg;
     end
 
+  //Temporary Address Register
+  always_ff@(posedge CLK)
+    begin
+      if(cpuIf.RESET)
+        temporaryAddressReg <= '0;
 
+      else if(intSigIf.loadAddr)
+        begin
+          cpuIf.DB <= temporaryAddressReg[15:8];
+          {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= temporaryAddressReg[7:0];
+        end
+
+      else
+        begin
+          if(cpuIf.DACK0)
+            intRegIf.temporaryAddressReg <= currentAddressReg[0];
+
+          else if(cpuIf.DACK1)
+            intRegIf.temporaryAddressReg <= currentAddressReg[1];
+
+          else if(cpuIf.DACK2)
+            intRegIf.temporaryAddressReg <= currentAddressReg[2];
+
+          else if(cpuIf.DACK3)
+            intRegIf.temporaryAddressReg <= currentAddressReg[3];
+
+          else
+            intRegIf.temporaryAddressReg <= intRegIf.temporaryAddressReg;
+        end
+
+    end
 
   //Base Address Register
   always_ff@(posedge cpuIf.CLK)
@@ -150,8 +180,24 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       else
         begin
-          for(int i=0; i<=3; i=i+1)
-            currentAddressReg[i] <= currentAddressReg[i];
+          if(intSigIf.updateCurrentAddressReg && cpuIf.DACK0)
+            currentAddressReg[0] <= intRegIf.temporaryAddressReg;
+
+          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK1)
+            currentAddressReg[1] <= intRegIf.temporaryAddressReg;
+
+          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK2)
+            currentAddressReg[2] <= intRegIf.temporaryAddressReg;
+
+          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK3)
+            currentAddressReg[3] <= intRegIf.temporaryAddressReg;
+
+          else
+            begin
+              for(int i=0; i<=3; i=i+1)
+                currentAddressReg[i] <= currentAddressReg[i];
+            end
+
         end
 
     end
