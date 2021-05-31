@@ -7,7 +7,8 @@ interface dmaInternalSignalsIf;
   logic deassertDACK;
 
   logic intEOP;
-  logic updateCurrentWordCountReg ;
+  logic updateCurrentWordCountReg;
+  logic updateCurrentAddressReg;
 
   modport timingAndControl(
     output assertDACK,
