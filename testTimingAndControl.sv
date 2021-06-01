@@ -1,14 +1,15 @@
 module testTimingAndControl();
-  cpuInterface.timingAndControl TCcpuIf;
-  cpuInterface.priorityLogic PLcpuIf;
-  dmaInternalRegistersIf.timingControl intRegIf;
-  dmaInternalSignalsIf.timingControl intSigIf;
 
   bit CLK = 0;
   bit RESET;
   always #5 CLK = ~CLK;
 
-  timingAndControl DUT(cpuInterface.timingAndControl TCcpuIf, cpuInterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
+  cpuInterface.timingAndControl TCcpuIf(CLK, RESET);
+  cpuInterface.priorityLogic PLcpuIf(CLK, RESET);
+  dmaInternalRegistersIf.timingAndControl intRegIf(cpuIf.CLK, cpuIf.RESET);
+  dmaInternalSignalsIf.timingAndControl intSigIf(cpuIf.CLK, cpuIf.RESET);
+
+  timingAndControl DUT(TCcpuIf, PLcpuIf, intRegIf, intSigIf);
 
   initial
     begin
