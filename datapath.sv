@@ -77,10 +77,10 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       //update Status Register
       else if(intSigIf.intEOP)
         begin
-          intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ3;
-          intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ2;
-          intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ1;
-          intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ0;
+          intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ[3];
+          intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ[2];
+          intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ[1];
+          intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ[0];
           intRegIf.statusReg.c3ReachedTC <= (!(|(currentWordCountReg[3]))) ? 1'b1 : 1'b0;
           intRegIf.statusReg.c2ReachedTC <= (!(|(currentWordCountReg[2]))) ? 1'b1 : 1'b0;
           intRegIf.statusReg.c1ReachedTC <= (!(|(currentWordCountReg[1]))) ? 1'b1 : 1'b0;

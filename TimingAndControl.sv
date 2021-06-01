@@ -1,4 +1,4 @@
-module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
+module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
 
   enum {SIIndex = 0,
         SOIndex = 1,
@@ -28,7 +28,7 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
     begin
       nextState = state;
       unique case (1'b1)
-        state[SIIndex]:	if (PLcpuIf.DREQ0 || PLcpuIf.DREQ1 || PLcpuIf.DREQ2 || PLcpuIf.DREQ3)
+        state[SIIndex]:	if (|PLcpuIf.DREQ)
           nextState = SO;
         state[SOIndex]:	if (PLcpuIf.HLDA)
           nextState <= S1;

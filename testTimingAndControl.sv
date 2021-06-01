@@ -1,6 +1,6 @@
 module testTimingAndControl();
-  CPUinterface.timingAndControl TCcpuIf;
-  CPUinterface.priorityLogic PLcpuIf;
+  cpuInterface.timingAndControl TCcpuIf;
+  cpuInterface.priorityLogic PLcpuIf;
   dmaInternalRegistersIf.timingControl intRegIf;
   dmaInternalSignalsIf.timingControl intSigIf;
 
@@ -10,7 +10,7 @@ module testTimingAndControl();
   parameter CLOCK_WIDTH  = CLOCK_CYCLE/2;
   parameter RESET_CLOCKS = 2;
 
-  timingAndControl TC(CPUinterface.timingAndControl TCcpuIf, CPUinterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
+  timingAndControl TC(cpuInterface.timingAndControl TCcpuIf, cpuInterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingControl intRegIf, dmaInternalSignalsIf.timingControl intSigIf);
 
   initial
     begin
@@ -29,10 +29,7 @@ module testTimingAndControl();
     begin
       @(negedge TCcpuIf.CLK);
       TCcpuIf.RESET = 1'b1;
-      PLcpuIf.DREQ0 = 1'b0;
-      PLcpuIf.DREQ1 = 1'b0;
-      PLcpuIf.DREQ2 = 1'b0;
-      PLcpuIf.DREQ3 = 1'b1;
+      PLcpuIf.DREQ = 4'b0001;
       PLcpuIf.HLDA = 1'b0;
       TCcpuIf.EOP_N = 1'b0;
       intRegIf.modeReg[0].transferType = 2'b00;
