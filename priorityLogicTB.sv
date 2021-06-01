@@ -20,58 +20,58 @@ module priorityLogic_tb;
 
   initial
     begin
-      @(posedge CLK)
+      @(negedge CLK)
       begin
         intRegIf.commandReg.priorityType = 1'b0;
         intSigIf.assertDACK = 1'b1;
       end
 
-      @(posedge CLK)
+      @(negedge CLK)
       cpuIf.DREQ = 4'b1111;
-      $display("DACK = %b",cpuIf.DACK);
+      $strobe("DACK = %b",cpuIf.DACK);
 
-      @(posedge CLK)
+      @(negedge CLK)
       cpuIf.DREQ = 4'b1110;
-      $display("DACK = %b",cpuIf.DACK);
+      $strobe("DACK = %b",cpuIf.DACK);
 
-      @(posedge CLK)
-      cpuIf.DREQ = 4'b1100;
-      $display("DACK = %b",cpuIf.DACK);
-
-      @(posedge CLK)
+      @(negedge CLK)
       cpuIf.DREQ = 4'b1101;
-      $display("DACK = %b",cpuIf.DACK);
+      $strobe("DACK = %b",cpuIf.DACK);
 
-      @(posedge CLK)
+      @(negedge CLK)
+      cpuIf.DREQ = 4'b1001;
+      $strobe("DACK = %b",cpuIf.DACK);
+
+      @(negedge CLK)
       begin
         intRegIf.commandReg.priorityType = 1'b1;
         cpuIf.DREQ = 4'b1101;
       end
-      $display("P DACK = %b",cpuIf.DACK);
+      $strobe("P DACK = %b",cpuIf.DACK);
 
-      @(posedge CLK)
+      @(negedge CLK)
       begin
         intRegIf.commandReg.priorityType = 1'b1;
-        cpuIf.DREQ = 4'b1110;
+        cpuIf.DREQ = 4'b1100;
       end
-      $display("P DACK = %b",cpuIf.DACK);
+      $strobe("P DACK = %b",cpuIf.DACK);
 
-      @(posedge CLK)
+      @(negedge CLK)
       begin
         intRegIf.commandReg.priorityType = 1'b1;
-        cpuIf.DREQ = 4'b1001;
+        cpuIf.DREQ = 4'b1000;
       end
-      $display("P DACK = %b",cpuIf.DACK);
+      $strobe("P DACK = %b",cpuIf.DACK);
 
-      @(posedge CLK)
+      @(negedge CLK)
       begin
         intRegIf.commandReg.priorityType = 1'b1;
-        cpuIf.DREQ = 4'b1001;
+        cpuIf.DREQ = 4'b0011;
       end
-      $display("P DACK = %b",cpuIf.DACK);
+      $strobe("P DACK = %b",cpuIf.DACK);
 
 
-      @(posedge CLK)
+      @(negedge CLK)
       a = $countones(cpuIf.DACK);
       $display("a = %d",a);
 
@@ -81,8 +81,10 @@ module priorityLogic_tb;
   property singleDACK_p;
     @(posedge CLK)
     disable iff (RESET)
-    cpuIf.DREQ |=> ($countones(cpuIf.DACK)==1);
+    cpuIf.DREQ |=> ($countones(cpuIf.DACK) ==1 );
   endproperty
-  singleDACK_a : assert property(singleDACK_p)
+  singleDACK_a : assert property(singleDACK_p);
+
+
 
 endmodule
