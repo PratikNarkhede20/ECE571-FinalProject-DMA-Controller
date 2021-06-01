@@ -16,7 +16,7 @@ module priorityLogic_tb;
 
   dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
 
-  priorityLogic tb (cpuIf, intRegIf, intSigIf);
+  priorityLogic tb (cpuIf.priorityLogic, intRegIf.priorityLogic, intSigIf.priorityLogic);
 
   initial
     begin
