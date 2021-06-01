@@ -55,6 +55,8 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
       {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
       cpuIf.EOP_N = 1'b1;
       intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; intSigIf.deassertDACK = 1'b0;
+      intSigIf.updateCurrentWordCountReg = 1'b0;
+      intSigIf.updateCurrentAddressReg = 1'b0;
 
       unique case (1'b1)
 
@@ -66,6 +68,8 @@ module timingAndControl(CPUinterface.timingAndControl TCcpuIf, CPUinterface.prio
             {cpuIf.MEMR_N, cpuIf.MEMW_N, cpuIf.IOR_N, cpuIf.IOW_N} = 4'bz;
             cpuIf.EOP_N = 1'b1;
             intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; intSigIf.deassertDACK = 1'b0;
+            intSigIf.updateCurrentWordCountReg = 1'b0;
+            intSigIf.updateCurrentAddressReg = 1'b0;
           end
 
         state[SOIndex]:

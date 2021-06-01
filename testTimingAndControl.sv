@@ -24,3 +24,22 @@ module testTimingAndControl();
       repeat (RESET_CLOCKS) @(negedge Clock);
       Reset = FALSE;
     end
+
+  initial
+    begin
+      @(negedge TCcpuIf.CLK);
+      TCcpuIf.RESET = 1'b1;
+      PLcpuIf.DREQ0 = 1'b0;
+      PLcpuIf.DREQ1 = 1'b0;
+      PLcpuIf.DREQ2 = 1'b0;
+      PLcpuIf.DREQ3 = 1'b1;
+      PLcpuIf.HLDA = 1'b0;
+      TCcpuIf.EOP_N = 1'b0;
+      intRegIf.modeReg[0].transferType = 2'b00;
+      intRegIf.modeReg[1].transferType = 2'b00;
+      intRegIf.modeReg[2].transferType = 2'b00;
+      intRegIf.modeReg[3].transferType = 2'b01;
+
+      $stop;
+    end
+endmodule
