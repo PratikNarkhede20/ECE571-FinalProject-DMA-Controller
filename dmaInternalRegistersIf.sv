@@ -1,4 +1,4 @@
-interface dmaInternalRegistersIf;
+interface dmaInternalRegistersIf(input logic CLK, RESET);
 
   struct packed{
       logic c3Request  ; //1 - Channel 3 Request

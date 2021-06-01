@@ -1,4 +1,4 @@
-interface dmaInternalSignalsIf;
+interface dmaInternalSignalsIf(input logic CLK, RESET);
 
   logic programCondition;
   logic loadAddr;
