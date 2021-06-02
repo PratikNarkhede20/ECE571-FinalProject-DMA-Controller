@@ -1,3 +1,4 @@
+`include "dmaRegConfigPkg.sv"
 module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf intSigIf);
 
   import dmaRegConfigPkg :: *; //wildcard import
@@ -27,34 +28,34 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
   logic rd_statusReg;
   logic clear_internalFF;
 
-  always_comb
-    begin
+  //always_comb
+    //begin
       //Register Code for writing Base Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      ld_baseAddressReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      assign ld_baseAddressReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for reading Current Address Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      rd_currentAddressReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      assign rd_currentAddressReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for writing Base Word Count Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      ld_baseWordCountReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      assign ld_baseWordCountReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for reading Current Word Count Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      rd_currentWordCountReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      assign rd_currentWordCountReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for writing Command Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=0 , A0=0.
-      ld_commandReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+      assign ld_commandReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
 
       //Register Code for writing Mode Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=1 , A0=1.
-      ld_modeReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0) ? 1'b1 : 1'b0;
+      assign ld_modeReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0) ? 1'b1 : 1'b0;
 
       //Register Code for reading Status Register is CS_N=0, IOR_N=0, IOW_N=1, A3=1, A2=0 , A1=0 , A0=0.
-      rd_statusReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+      assign rd_statusReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
 
       //Register Code for clearing Internal Flip Flop is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=1 , A1=0 , A0=0
-      clear_internalFF = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+      assign clear_internalFF = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
 
       //TO DO : IMMEDIATE Assertions
-    end
+    //end
 
   //Command Register
   always_ff@(posedge cpuIf.CLK)
@@ -110,10 +111,10 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       //update Status Register
       else if(intSigIf.intEOP) //TO DO : update condition
         begin
-          intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ3;
-          intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ2;
-          intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ1;
-          intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ0;
+          intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ[3];
+          intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ[2];
+          intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ[1];
+          intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ[0];
           intRegIf.statusReg.c3ReachedTC <= (!(|(currentWordCountReg[3]))) ? 1'b1 : 1'b0; //TO DO : Updated Current Word Count Reg
           intRegIf.statusReg.c2ReachedTC <= (!(|(currentWordCountReg[2]))) ? 1'b1 : 1'b0;
           intRegIf.statusReg.c1ReachedTC <= (!(|(currentWordCountReg[1]))) ? 1'b1 : 1'b0;
@@ -125,29 +126,29 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
     end
 
   //Temporary Address Register
-  always_ff@(posedge CLK)
+  always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
-        temporaryAddressReg <= '0;
+        intRegIf.temporaryAddressReg <= '0;
 
       else if(intSigIf.loadAddr)
         begin
-          cpuIf.DB <= temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
-          {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
+          cpuIf.DB <= intRegIf.temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
+          { cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
         begin
-          if(cpuIf.DACK0)
+          if(cpuIf.DACK[0])
             intRegIf.temporaryAddressReg <= currentAddressReg[0];
 
-          else if(cpuIf.DACK1)
+          else if(cpuIf.DACK[1])
             intRegIf.temporaryAddressReg <= currentAddressReg[1];
 
-          else if(cpuIf.DACK2)
+          else if(cpuIf.DACK[2])
             intRegIf.temporaryAddressReg <= currentAddressReg[2];
 
-          else if(cpuIf.DACK3)
+          else if(cpuIf.DACK[3])
             intRegIf.temporaryAddressReg <= currentAddressReg[3];
 
           else
@@ -211,16 +212,16 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       else
         begin
-          if(intSigIf.updateCurrentAddressReg && cpuIf.DACK0)
+          if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[0])
             currentAddressReg[0] <= intRegIf.temporaryAddressReg;
 
-          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK1)
+          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[1])
             currentAddressReg[1] <= intRegIf.temporaryAddressReg;
 
-          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK2)
+          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[2])
             currentAddressReg[2] <= intRegIf.temporaryAddressReg;
 
-          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK3)
+          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[3])
             currentAddressReg[3] <= intRegIf.temporaryAddressReg;
 
           else
@@ -288,16 +289,16 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       else
         begin
-          if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK0)
+          if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[0])
             currentWordCountReg[0] <= intRegIf.temporaryWordCountReg;
 
-          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK1)
+          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[1])
             currentWordCountReg[1] <= intRegIf.temporaryWordCountReg;
 
-          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK2)
+          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[2])
             currentWordCountReg[2] <= intRegIf.temporaryWordCountReg;
 
-          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK3)
+          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[3])
             currentWordCountReg[3] <= intRegIf.temporaryWordCountReg;
 
           else
