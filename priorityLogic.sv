@@ -1,4 +1,3 @@
-// Code your design here
 module priorityLogic(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf intSigIf);
 
   logic [3:0][1:0] priorityOrder = 8'b11_10_01_00;
