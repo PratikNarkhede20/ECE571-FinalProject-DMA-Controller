@@ -64,7 +64,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
       intSigIf.intEOP = 1'b0;
       intSigIf.loadAddr = 1'b0;
       intSigIf.assertDACK = 1'b0;
-      intSigIf.deassertDACK = 1'b0;
+      //intSigIf.deassertDACK = 1'b0;
       intSigIf.updateCurrentWordCountReg = 1'b0;
       intSigIf.updateCurrentAddressReg = 1'b0;
 
@@ -76,7 +76,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
               intSigIf.programCondition = 1'b1;
             {cpuIf.AEN, cpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
             {ior,memw,iow,memr} = 4'b0000;
-            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; intSigIf.deassertDACK = 1'b0;
+            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; //intSigIf.deassertDACK = 1'b0;
             intSigIf.updateCurrentWordCountReg = 1'b0;
             intSigIf.updateCurrentAddressReg = 1'b0;
           end
@@ -138,11 +138,8 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
         state[S4Index]:
           begin
-            cpuIf.IOR_N = (cpuIf.IOR_N == 1'b0)? 1'b1 : 1'bz;
-            cpuIf.MEMW_N = (cpuIf.MEMW_N == 1'b0)? 1'b1 : 1'bz;
-            cpuIf.IOW_N = (cpuIf.IOW_N == 1'b0)? 1'b1 : 1'bz;
-            cpuIf.MEMR_N = (cpuIf.MEMR_N == 1'b0)? 1'b1 : 1'bz;
-
+            {ior,memw,iow,memr} = 4'b0000;
+            
             intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
             intSigIf.updateCurrentWordCountReg = 1'b1;
             if (intRegIf.temporaryWordCountReg == 0)
