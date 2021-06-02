@@ -1,29 +1,30 @@
+//`include "dmaRegConfigPkg.sv"
 interface cpuInterface(input logic CLK, RESET);
 
   import dmaRegConfigPkg :: *; //wildcard import
 
-  wire 		  	IOR_N ;
-  wire 		  	IOW_N ;
-  logic 	  	MEMR_N;
-  logic       MEMW_N;
-  logic 	  	READY ;
-  logic 	  	HLDA  ;
-  logic 	  	ADSTB ;
-  logic 	  	AEN   ;
-  logic 	  	HRQ   ;
-  logic			CS_N  ;
+  wire                   IOR_N ;
+  wire                   IOW_N ;
+  logic                  MEMR_N;
+  logic                  MEMW_N;
+  logic                  READY ;
+  logic                  HLDA  ;
+  logic                  ADSTB ;
+  logic                  AEN   ;
+  logic                  HRQ   ;
+  logic                  CS_N  ;
   logic [CHANNELS-1 : 0] DACK  ;
   logic [CHANNELS-1 : 0] DREQ  ;
-  wire 		  EOP_N ;
-  wire  		A0	  ;
-  wire  		A1    ;
-  wire  		A2    ;
-  wire  		A3    ;
-  wire  		A4    ;
-  wire  		A5    ;
-  wire  		A6    ;
-  wire  		A7	  ;
-  wire  [DATAWIDTH-1 : 0]	DB	  ;
+  wire                   EOP_N ;
+  wire                   A0    ;
+  wire                   A1    ;
+  wire                   A2    ;
+  wire                   A3    ;
+  logic                  A4    ;
+  logic                  A5    ;
+  logic                  A6    ;
+  logic                  A7    ;
+  wire [DATAWIDTH-1 : 0] DB    ;
 
   modport timingAndControl(
     input CLK,
