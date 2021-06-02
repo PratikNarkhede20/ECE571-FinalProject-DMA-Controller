@@ -85,6 +85,11 @@ module priorityLogic_tb;
   endproperty
   singleDACK_a : assert property(singleDACK_p);
 
-
+  property DREQIsKnown_p;
+    @(posedge CLK)
+    disable iff (RESET)
+    $isunknown(cpuIf.DREQ);
+    endproperty
+    DREQIsKnown_a : assert property(DREQIsKnown_p);
 
 endmodule
