@@ -1,5 +1,7 @@
 interface dmaInternalRegistersIf(input logic CLK, RESET);
 
+  import dmaRegConfigPkg :: *; //wildcard import
+
   struct packed{
       logic c3Request  ; //1 - Channel 3 Request
       logic c2Request  ; //1 - Channel 2 Request
@@ -27,7 +29,7 @@ interface dmaInternalRegistersIf(input logic CLK, RESET);
       logic         addressSelect     ; //0-Address Increment select, 1-Address Drecement select
       logic         autoinitialization; //0-Autoinitialization Disable, 1-Autoinitialization Enable
       logic [1 : 0] transferType      ; //00-Verify transfer, 01-Write Transfer, 10-Read Transfer, 11-illegal, XX-if ModeSelect=11
-    } modeReg [3 : 0];
+    } modeReg [CHANNELS-1 : 0];
 
     struct packed{
       logic c3Mask; //0-Clear Channel 0 mask bit, 1-Set Channel 0 mask bit
@@ -41,8 +43,7 @@ interface dmaInternalRegistersIf(input logic CLK, RESET);
       logic [1 : 0] channelSelect; //00-Select Channel0, 01-Select Channel1, 10-Select Channel2, 11-Select Channel3
     } requestReg;
 
-    logic [15 : 0] temporaryWordCountReg;
-    logic [15 : 0] temporaryAddressReg;
+    logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg;
 
 
   modport timingAndControl(

@@ -1,15 +1,17 @@
 module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf intSigIf);
 
-  logic [15 : 0] baseAddressReg        [3 : 0];
-  logic [15 : 0] baseWordCountReg      [3 : 0];
-  logic [15 : 0] currentAddressReg     [3 : 0];
-  logic [15 : 0] currentWordCountReg   [3 : 0];
-  //logic [15 : 0] temporaryAddressReg          ;
-  //logic [15 : 0] temporaryWordCountReg        ;
-  logic [7  : 0] temporaryReg                 ;
+  import dmaRegConfigPkg :: *; //wildcard import
 
-  logic [7 : 0] writeBuffer;
-  logic [7 : 0] readBuffer ;
+  logic [ADDRESSWIDTH-1 : 0] baseAddressReg        [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] baseWordCountReg      [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] currentAddressReg     [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] currentWordCountReg   [CHANNELS-1 : 0];
+  //logic [ADDRESSWIDTH-1 : 0] temporaryAddressReg          ;
+  //logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg        ;
+  logic [DATAWIDTH-1    : 0] temporaryReg;
+
+  logic [DATAWIDTH-1    : 0] writeBuffer;
+  logic [DATAWIDTH-1    : 0] readBuffer ;
 
   //logic [7 : 0] ioDataBuffer	   ;
   //logic [3 : 0] ioAddressBuffer	   ;
@@ -24,7 +26,6 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
   logic ld_modeReg;
   logic rd_statusReg;
   logic clear_internalFF;
-
 
   always_comb
     begin
@@ -51,6 +52,8 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       //Register Code for clearing Internal Flip Flop is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=1 , A1=0 , A0=0
       clear_internalFF = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+
+      //TO DO : IMMEDIATE Assertions
     end
 
   //Command Register
@@ -105,13 +108,13 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
         end
 
       //update Status Register
-      else if(intSigIf.intEOP)
+      else if(intSigIf.intEOP) //TO DO : update condition
         begin
           intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ3;
           intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ2;
           intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ1;
           intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ0;
-          intRegIf.statusReg.c3ReachedTC <= (!(|(currentWordCountReg[3]))) ? 1'b1 : 1'b0;
+          intRegIf.statusReg.c3ReachedTC <= (!(|(currentWordCountReg[3]))) ? 1'b1 : 1'b0; //TO DO : Updated Current Word Count Reg
           intRegIf.statusReg.c2ReachedTC <= (!(|(currentWordCountReg[2]))) ? 1'b1 : 1'b0;
           intRegIf.statusReg.c1ReachedTC <= (!(|(currentWordCountReg[1]))) ? 1'b1 : 1'b0;
           intRegIf.statusReg.c0ReachedTC <= (!(|(currentWordCountReg[0]))) ? 1'b1 : 1'b0;
@@ -129,8 +132,8 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
       else if(intSigIf.loadAddr)
         begin
-          cpuIf.DB <= temporaryAddressReg[15:8];
-          {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= temporaryAddressReg[7:0];
+          cpuIf.DB <= temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
+          {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
@@ -166,9 +169,9 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else if( ld_baseAddressReg )
         begin
           if(internalFF)
-            baseAddressReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
+            baseAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
           else
-            baseAddressReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
+            baseAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
         end
 
       else
@@ -191,9 +194,9 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else if( ld_baseAddressReg )
         begin
           if(internalFF)
-            currentAddressReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
+            currentAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
           else
-            currentAddressReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
+            currentAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
         end
 
       //read Current Address Register
@@ -201,9 +204,9 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else if( rd_currentAddressReg )
         begin
           if(internalFF)
-            readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][15:8];
+            readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
           else
-            readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][7:0];
+            readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
@@ -244,9 +247,9 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else if( ld_baseWordCountReg )
         begin
           if(internalFF)
-            baseWordCountReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
+            baseWordCountReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
           else
-            baseWordCountReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
+            baseWordCountReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
         end
 
       else
@@ -269,18 +272,18 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else if( ld_baseWordCountReg )
         begin
           if(internalFF)
-            currentWordCountReg[{cpuIf.A2, cpuIf.A1}][15:8] <= writeBuffer;
+            currentWordCountReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
           else
-            currentWordCountReg[{cpuIf.A2, cpuIf.A1}][7:0] <= writeBuffer;
+            currentWordCountReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
         end
 
       //read Current Word Count Register
       else if( rd_currentWordCountReg )
         begin
           if(internalFF)
-            readBuffer <= currentWordCountReg[0][15:8];
+            readBuffer <= currentWordCountReg[0][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
           else
-            readBuffer <= currentWordCountReg[0][7:0];
+            readBuffer <= currentWordCountReg[0][ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
