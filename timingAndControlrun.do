@@ -34,5 +34,6 @@ sim:/testTimingAndControl/intSigIf/deassertDACK \
 sim:/testTimingAndControl/intSigIf/intEOP \
 sim:/testTimingAndControl/intSigIf/updateCurrentWordCountReg \
 sim:/testTimingAndControl/intSigIf/updateCurrentAddressReg
+add wave -position 12  sim:/testTimingAndControl/cpuIf/CS_N
 add wave -position insertpoint sim:/testTimingAndControl/DUT/*
 run -all

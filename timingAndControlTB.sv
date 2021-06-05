@@ -33,6 +33,7 @@ module testTimingAndControl();
       RESET = 1'b1;
       cpuIf.DREQ = 4'b0001;
       cpuIf.HLDA = 1'b0;
+      cpuIf.CS_N = 1'b0;
       //cpuIf.EOP_N = 1'b0;
       intRegIf.modeReg[0].transferType = 2'b00;
       intRegIf.modeReg[1].transferType = 2'b00;
