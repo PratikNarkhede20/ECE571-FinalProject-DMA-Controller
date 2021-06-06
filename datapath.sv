@@ -1,3 +1,4 @@
+`include "dmaRegConfigPkg.sv"
 module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
 
   import dmaRegConfigPkg :: *; //wildcard import
@@ -71,8 +72,8 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       //write Command Register
       else if( ldCommandReg )
-        //intRegIf.commandReg <= cpuIf.DB;
-        intRegIf.commandReg <= '0; //delete this later
+        intRegIf.commandReg <= cpuIf.DB;
+        //intRegIf.commandReg <= '0; //delete this later
 
       else
         intRegIf.commandReg <= intRegIf.commandReg;
@@ -365,6 +366,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     $display("writeBuffer = %p", writeBuffer);
     $display("readBuffer = %p", readBuffer);
   end
+
 
 
 endmodule
