@@ -1,5 +1,4 @@
-`include "dmaRegConfigPkg.sv"
-module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath intRegIf, dmaInternalSignalsIf.dataPath intSigIf);
+module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
 
   import dmaRegConfigPkg :: *; //wildcard import
 
@@ -30,8 +29,8 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
 
   //assign cpuIf.DB =
 
-  //assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = !cpuIf.CS_N ? (( intSigIf.loadAddr) ? ioAddressBuffer : 4'bz) : 4'bz;
-  assign cpuIf.A3 = !cpuIf.CS_N ? (( intSigIf.loadAddr) ? ioAddressBuffer[0] : 1'bz) : 1'bz;
+  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = !cpuIf.CS_N ? (( intSigIf.loadAddr) ? ioAddressBuffer : 4'bz) : 4'bz;
+  //assign cpuIf.A3 = !cpuIf.CS_N ? (( intSigIf.loadAddr) ? ioAddressBuffer[0] : 1'bz) : 1'bz;
 
   always_comb
     begin
@@ -60,7 +59,9 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       clearInternalFF = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
 
       //TO DO : IMMEDIATE Assertions
+      //assert
     end
+
 
   //Command Register
   always_ff@(posedge cpuIf.CLK)
@@ -141,7 +142,7 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else if(intSigIf.loadAddr)
         begin
           //cpuIf.DB <= intRegIf.temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
-          //{ cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
+          { cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
@@ -353,5 +354,17 @@ module datapath(cpuInterface.dataPath cpuIf, dmaInternalRegistersIf.dataPath int
       else
         readBuffer <= readBuffer;
     end
+
+  final
+  begin
+    $display("baseAddressReg = %p", baseAddressReg);
+    $display("baseWordCountReg = %p", baseWordCountReg);
+    $display("currentAddressReg = %p", currentAddressReg);
+    $display("currentWordCountReg = %p", currentWordCountReg);
+    $display("temporaryReg = %p", temporaryReg);
+    $display("writeBuffer = %p", writeBuffer);
+    $display("readBuffer = %p", readBuffer);
+  end
+
 
 endmodule
