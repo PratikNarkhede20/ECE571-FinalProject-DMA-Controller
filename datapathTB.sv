@@ -10,7 +10,7 @@ module datapathTB();
 
   dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
 
-  datapath tb(cpuIf, intRegIf, intSigIf);
+  datapath tb(cpuIf.dataPath, intRegIf.dataPath, intSigIf.dataPath);
 
   initial
     begin
