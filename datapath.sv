@@ -14,9 +14,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   logic [DATAWIDTH-1    : 0] writeBuffer;
   logic [DATAWIDTH-1    : 0] readBuffer ;
 
-  logic [7 : 0] ioDataBuffer	   ;
-  logic [3 : 0] ioAddressBuffer	   ;
-  logic [3 : 0] outputAddressBuffer;
+  logic [DATAWIDTH-1 : 0]        ioDataBuffer       ;
+  logic [(ADDRESSWIDTH/4)-1 : 0] ioAddressBuffer    ;
+  logic [(ADDRESSWIDTH/4)-1 : 0] outputAddressBuffer;
 
   logic internalFF;
   logic ldBaseAddressReg;
@@ -28,11 +28,35 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   logic rdStatusReg;
   logic clearInternalFF;
 
-  //assign cpuIf.DB =
+  //Data Buffer
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(cpuIf.RESET)
+        ioDataBuffer <= '0;
+      else if(!cpuIf.CS_N & !cpuIf.IOW_N)
+        ioDataBuffer <= cpuIf.DB;
+      else
+        ioDataBuffer <= ioDataBuffer;
+    end
 
-  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = !cpuIf.CS_N ? (( intSigIf.loadAddr) ? ioAddressBuffer : 4'bz) : 4'bz;
-  //assign cpuIf.A3 = !cpuIf.CS_N ? (( intSigIf.loadAddr) ? ioAddressBuffer[0] : 1'bz) : 1'bz;
+  assign cpuIf.DB = (!cpuIf.CS_N & !cpuIf.IOR_N) ? ioDataBuffer : 'z;
 
+  //Address Buffer
+  always_ff@(posedge cpuIf.CLK)
+    begin
+      if(cpuIf.RESET)
+        ioAddressBuffer <= '0;
+      else if(!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr)
+        ioAddressBuffer <= {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0};
+      else
+        ioAddressBuffer <= ioAddressBuffer;
+    end
+
+  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
+  assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz;
+
+
+  //
   always_comb
     begin
       //Register Code for writing Base Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
@@ -72,8 +96,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       //write Command Register
       else if( ldCommandReg )
-        intRegIf.commandReg <= cpuIf.DB;
-        //intRegIf.commandReg <= '0; //delete this later
+        intRegIf.commandReg <= ioDataBuffer;
 
       else
         intRegIf.commandReg <= intRegIf.commandReg;
@@ -90,8 +113,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       //write Mode Register
       else if( ldModeReg )
-        //intRegIf.modeReg[cpuIf.DB[1:0]] <= cpuIf.DB[7:2];
-        intRegIf.modeReg[0] <= '0; //DELETE THIS LATER
+        intRegIf.modeReg[ioDataBuffer[1:0]] <= ioDataBuffer[7:2];
 
       else
         begin
@@ -111,7 +133,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       //read Status Register
       else if( rdStatusReg )
         begin
-          //cpuIf.DB <= intRegIf.statusReg; //REMOVE THE COMMENT LATER. RESTORE THE LOGIC
+          ioDataBuffer <= intRegIf.statusReg;
 
           //clear status reg after each read
           intRegIf.statusReg <= '0;
@@ -142,8 +164,8 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       else if(intSigIf.loadAddr)
         begin
-          //cpuIf.DB <= intRegIf.temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
-          { cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0 } <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
+          ioDataBuffer <= intRegIf.temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
+          {outputAddressBuffer, ioAddressBuffer} <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
@@ -337,7 +359,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         writeBuffer <= '0;
       else if( ldBaseAddressReg | ldBaseWordCountReg | ldCommandReg | ldModeReg )
         begin
-          //writeBuffer <= cpuIf.DB;
+          writeBuffer <= ioDataBuffer;
         end
       else
         writeBuffer <= writeBuffer;
@@ -350,7 +372,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         readBuffer <= '0;
       else if( rdCurrentAddressReg | rdCurrentWordCountReg | rdStatusReg )
         begin
-          //cpuIf.DB <= readBuffer;
+          ioDataBuffer <= readBuffer;
         end
       else
         readBuffer <= readBuffer;
@@ -366,7 +388,4 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     $display("writeBuffer = %p", writeBuffer);
     $display("readBuffer = %p", readBuffer);
   end
-
-
-
 endmodule
