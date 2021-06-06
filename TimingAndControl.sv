@@ -43,9 +43,9 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
     begin
       nextState = state;
       unique case (1'b1)
-        state[SIIndex]:	if (|PLcpuIf.DREQ)
+        state[SIIndex]:	if (|PLcpuIf.DREQ && intSigIf.programCondition == 1'b0)
           nextState = SO;
-        state[SOIndex]:	if (PLcpuIf.HLDA)
+        state[SOIndex]:	if (PLcpuIf.HLDA )
           nextState = S1;
         state[S1Index]:
           nextState = S2;
@@ -62,21 +62,24 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
       intSigIf.intEOP = 1'b0;
       intSigIf.loadAddr = 1'b0;
       intSigIf.assertDACK = 1'b0;
+      intSigIf.programCondition = 1'b0;
       //intSigIf.deassertDACK = 1'b0;
       intSigIf.updateCurrentWordCountReg = 1'b0;
       intSigIf.updateCurrentAddressReg = 1'b0;
+      intSigIf.decrTemporaryWordCountReg = 1'b0;
 
       unique case (1'b1)
 
         state[SIIndex]:
           begin
-            if(!TCcpuIf.CS_N && !PLcpuIf.HLDA)
+            if(!TCcpuIf.CS_N && !PLcpuIf.HRQ)
               intSigIf.programCondition = 1'b1;
             {TCcpuIf.AEN, TCcpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
             {ior,memw,iow,memr} = 4'b0000;
             intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; //intSigIf.deassertDACK = 1'b0;
             intSigIf.updateCurrentWordCountReg = 1'b0;
             intSigIf.updateCurrentAddressReg = 1'b0;
+            intSigIf.decrTemporaryWordCountReg = 1'b0;
           end
 
         state[SOIndex]:
@@ -86,12 +89,14 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
         state[S1Index]:
           begin
-            intSigIf.programCondition = 1'b0;
-            {TCcpuIf.AEN, TCcpuIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1;
+            //intSigIf.programCondition = 1'b0;
+            PLcpuIf.HRQ = 1'b1;
+            {TCcpuIf.AEN, TCcpuIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
           end
 
         state[S2Index]:
           begin
+            {PLcpuIf.HRQ, TCcpuIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
             unique case (1'b1)
 
               PLcpuIf.DACK[0]:
@@ -136,12 +141,15 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
         state[S4Index]:
           begin
+            {PLcpuIf.HRQ, TCcpuIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b0000;
             {ior,memw,iow,memr} = 4'b0000;
 
-            intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
+            //intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
             intSigIf.updateCurrentWordCountReg = 1'b1;
             if (intRegIf.temporaryWordCountReg == 0)
               intSigIf.intEOP = 1'b1;
+            else
+              intSigIf.decrTemporaryWordCountReg = 1'b1;
 
             intRegIf.temporaryAddressReg = intRegIf.temporaryAddressReg + 1'b1;
             intSigIf.updateCurrentAddressReg = 1'b1;
