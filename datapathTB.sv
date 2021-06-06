@@ -1,9 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
-`include "dmaInternalSignalsIf.sv"
-//`include "datapath.sv"
-//`include "dmaRegConfigPkg.sv"
-
 module datapathTB();
 
   bit CLK=0;
