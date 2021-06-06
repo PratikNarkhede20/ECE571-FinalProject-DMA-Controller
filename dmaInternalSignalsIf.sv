@@ -9,6 +9,7 @@ interface dmaInternalSignalsIf(input logic CLK, RESET);
   logic intEOP;
   logic updateCurrentWordCountReg;
   logic updateCurrentAddressReg;
+  logic decrTemporaryWordCountReg;
 
   modport timingAndControl(
     output assertDACK,
@@ -17,7 +18,8 @@ interface dmaInternalSignalsIf(input logic CLK, RESET);
     output loadAddr,
     output programCondition,
     output updateCurrentWordCountReg,
-    output updateCurrentAddressReg
+    output updateCurrentAddressReg,
+    output decrTemporaryWordCountReg
   );
 
   modport priorityLogic(
