@@ -18,19 +18,29 @@ module testTimingAndControl();
 
   always @(negedge CLK)
     begin
-      if(DUT.state == 6'b100000 && intSigIf.updateCurrentWordCountReg) //TO DO - Add comment here!! CAUTION - When doing block level testing replace "intSigIf.updateCurrentWordCountReg" with "intSigIf.intEOP"
+      /*if(DUT.state == 6'b100000 && intSigIf.updateCurrentWordCountReg) //TO DO - Add comment here!! CAUTION - When doing block level testing replace "intSigIf.updateCurrentWordCountReg" with "intSigIf.intEOP"
         begin
-          cpuIf.HLDA = 1'b0;
+          //cpuIf.HLDA = 1'b0;
           cpuIf.DREQ = 4'b0000;
-        end
+        end*/
       if(!intSigIf.assertDACK)
         cpuIf.DACK = 4'b0000;
       else
         cpuIf.DACK = 4'b0001;
       if(intSigIf.decrTemporaryWordCountReg)
         begin
+	  cpuIf.HLDA = 1'b0;
           intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
         end
+    end
+
+  always @(posedge intSigIf.intEOP)
+    cpuIf.DREQ = 4'b0000;
+
+  always @(posedge cpuIf.HRQ)
+    begin
+      repeat(WAITE) @(negedge CLK);
+      cpuIf.HLDA = 1'b1;
     end
 
   /*always_comb
