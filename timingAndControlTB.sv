@@ -3,16 +3,10 @@ module testTimingAndControl();
   bit CLK = 0;
   bit RESET;
   logic [2:0] WAITE;
-  //always #5 CLK = ~CLK;
 
   cpuInterface cpuIf(CLK, RESET);
   dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
   dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
-
-  /*cpuInterface.timingAndControl TCcpuIf;//(CLK, RESET);
-  cpuInterface.priorityLogic PLcpuIf;//(CLK, RESET);
-  dmaInternalRegistersIf.timingAndControl intRegIf;//(cpuIf.CLK, cpuIf.RESET);
-  dmaInternalSignalsIf.timingAndControl intSigIf;//(cpuIf.CLK, cpuIf.RESET);*/
 
   timingAndControl DUT(cpuIf.timingAndControl, cpuIf.priorityLogic, intRegIf.timingAndControl, intSigIf.timingAndControl);
 
