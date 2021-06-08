@@ -1,5 +1,5 @@
 `include "dmaRegConfigPkg.sv"
-module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
+module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
 
   import dmaRegConfigPkg :: *; //wildcard import
 
