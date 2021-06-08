@@ -39,7 +39,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         ioDataBuffer <= ioDataBuffer;
     end
 
-  assign cpuIf.DB = (!cpuIf.CS_N & !cpuIf.IOR_N) ? ioDataBuffer : 'z;
+  //assign cpuIf.DB = (!cpuIf.CS_N & !cpuIf.IOR_N) ? ioDataBuffer : 'z;  //UNCOMMENT LATER
 
   //Address Buffer
   always_ff@(posedge cpuIf.CLK)
@@ -52,8 +52,8 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         ioAddressBuffer <= ioAddressBuffer;
     end
 
-  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
-  assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz;
+  //assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
+  //assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz; //UNCOMMENT LATER
 
 
   //
@@ -388,4 +388,13 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     $display("writeBuffer = %p", writeBuffer);
     $display("readBuffer = %p", readBuffer);
   end
+
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0);
+    end
+
+
+
 endmodule
