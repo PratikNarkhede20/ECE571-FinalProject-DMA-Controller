@@ -1,9 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
-`include "dmaInternalSignalsIf.sv"
-//`include "datapath.sv"
-//`include "dmaRegConfigPkg.sv"
-
 module datapathTB();
 
   bit CLK=0;
@@ -13,7 +7,7 @@ module datapathTB();
   //virtual cpuInterface cpuIf;
 
 
-  cpuInterface cpuIf(CLK, RESET);
+  cpuInterfaceTesting cpuIf(CLK, RESET);
 
   dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
 
