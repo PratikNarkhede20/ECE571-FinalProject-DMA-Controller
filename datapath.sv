@@ -383,7 +383,7 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
   //internal flip flop
   always_ff@(posedge cpuIf.CLK)
     begin
-      if( cpuIf.RESET || clearInternalFF )
+      if( cpuIf.RESET || clearInternalFF || !enUpperAddress)
         internalFF <= 1'b0;
       else if(enUpperAddress)
         internalFF <= 1'b1;

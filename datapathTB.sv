@@ -10,8 +10,6 @@ module datapathTB();
   bit RESET;
   always #5 CLK = ~CLK;
 
-  //virtual cpuInterface cpuIf;
-
 
   cpuInterfaceTesting cpuIf(CLK, RESET);
 
@@ -42,22 +40,13 @@ module datapathTB();
 
       //command register
       @(negedge CLK)
-      begin
-        {intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10101000;
-        cpuIf.DB = 8'b10101010;
-      end
+      writeRegiter(8'b10101000, 8'b10101010);
 
       repeat(2)@(negedge CLK);
 
       //mode register
       @(negedge CLK)
-      begin
-        {intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10101011;
-        cpuIf.DB = 8'b11101110;
-      end
-
-      repeat(2)@(negedge CLK);
-      $display("mode reg[2] = %b", intRegIf.modeReg[2]);
+      writeRegiter(8'b10101011, 8'b11101110);
 
 
       //clear internal flipflop
@@ -68,25 +57,34 @@ module datapathTB();
 
       repeat(2)@(negedge CLK);
 
-       //write lower byte to base address register and Current Address Register
+      //write lower byte to base address register and Current Address Register
       @(negedge CLK)
-      begin
-        {intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10100010;
-        cpuIf.DB = 8'b11001100;
-      end
+      writeRegiter(8'b10100010, 8'b11001100);
 
       repeat(2)@(negedge CLK);
 
       //write upper byte to base address register and Current Address Register
       @(negedge CLK)
-      begin
-        {intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10100010;
-        cpuIf.DB = 8'b10001000;
-      end
+      writeRegiter(8'b10100010, 8'b10001000);
 
       repeat(2)@(negedge CLK);
-        $finish();
+
+      //write lower byte to base word register and Current word Register
+      @(negedge CLK)
+      writeRegiter(8'b10100101, 8'b11110101);
+
+      repeat(2)@(negedge CLK);
+
+      //write upper byte to base word register and Current word Register
+      @(negedge CLK)
+      writeRegiter(8'b10100101, 8'b10110010);
+      $finish();
     end
+
+  task writeRegiter(logic [7 : 0]registerCode, data);
+    {intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = registerCode;
+    cpuIf.DB = data;
+  endtask
 
   initial begin
     $dumpfile("dump.vcd");
