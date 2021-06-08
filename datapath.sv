@@ -27,6 +27,7 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
   logic ldModeReg;
   logic rdStatusReg;
   logic clearInternalFF;
+  logic enUpperAddress;
 
   //Data Buffer
   always_ff@(posedge cpuIf.CLK)
@@ -203,9 +204,15 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
       else if( ldBaseAddressReg )
         begin
           if(internalFF)
-            baseAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
+            begin
+              baseAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
+              enUpperAddress <= '0;
+            end
           else
-            baseAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
+            begin
+              baseAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
+              enUpperAddress <= '1;
+            end
         end
 
       else
@@ -346,10 +353,12 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
   //internal flip flop
   always_ff@(posedge cpuIf.CLK)
     begin
-      if( clearInternalFF )
+      if( cpuIf.RESET || clearInternalFF )
         internalFF <= 1'b0;
-      else
+      else if(enUpperAddress)
         internalFF <= 1'b1;
+      else
+        internalFF <= internalFF;
     end
 
   //Write Buffer
