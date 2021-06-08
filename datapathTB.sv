@@ -1,3 +1,9 @@
+`include "dmaInternalRegistersIf.sv"
+`include "cpuInterfaceTesting.sv"
+`include "dmaInternalSignalsIf.sv"
+//`include "datapath.sv"
+//`include "dmaRegConfigPkg.sv"
+
 module datapathTB();
 
   bit CLK=0;
@@ -53,6 +59,14 @@ module datapathTB();
       repeat(2)@(negedge CLK);
       $display("mode reg[2] = %b", intRegIf.modeReg[2]);
 
+       //write upper Address base address register and Current Address Register
+      @(negedge CLK)
+      begin
+        {intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10100010;
+        cpuIf.DB = 8'b11001100;
+      end
+
+      repeat(2)@(negedge CLK);
         $finish();
     end
 
