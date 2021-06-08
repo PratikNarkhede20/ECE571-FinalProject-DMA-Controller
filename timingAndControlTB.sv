@@ -27,21 +27,30 @@ module testTimingAndControl();
         cpuIf.DACK = 4'b0000;
       else
         cpuIf.DACK = 4'b0001;
+      if(cpuIf.HRQ)
+        cpuIf.HLDA = 1'b1;
+      else
+        cpuIf.HLDA = 1'b0;
+      /*if(!cpuIf.HRQ)
+        cpuIf.HLDA = 1'b0;*/
       if(intSigIf.decrTemporaryWordCountReg)
         begin
-	  cpuIf.HLDA = 1'b0;
+	  //cpuIf.HLDA = 1'b0;
           intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
         end
     end
 
   always @(posedge intSigIf.intEOP)
+  begin
     cpuIf.DREQ = 4'b0000;
+    //cpuIf.HLDA = 1'b0;
+  end
 
-  always @(posedge cpuIf.HRQ)
+  /*always @(posedge cpuIf.HRQ)
     begin
       repeat(WAITE) @(negedge CLK);
       cpuIf.HLDA = 1'b1;
-    end
+    end*/
 
   /*always_comb
   begin
@@ -76,7 +85,7 @@ module testTimingAndControl();
       intRegIf.modeReg[1].transferType = 2'b00;
       intRegIf.modeReg[2].transferType = 2'b00;
       intRegIf.modeReg[3].transferType = 2'b00;
-      intRegIf.temporaryWordCountReg = 16'b10;
+      intRegIf.temporaryWordCountReg = 16'b11;
 
       @(negedge CLK);
       RESET = 1'b0;
@@ -84,15 +93,12 @@ module testTimingAndControl();
       @(negedge CLK);
       cpuIf.CS_N = 1'b0;
 
-      WAITE = $urandom_range(7,0);
+      WAITE = $urandom_range(7,1);
       repeat(WAITE) @(negedge CLK);
       cpuIf.CS_N = 1'b1;
 
       repeat(1) @(negedge CLK);
       cpuIf.DREQ = 4'b0001;
-
-      repeat(WAITE) @(negedge CLK);
-      cpuIf.HLDA = 1'b1;
 
       /*@(negedge CLK);
       if(intSigIf.intEOP)
