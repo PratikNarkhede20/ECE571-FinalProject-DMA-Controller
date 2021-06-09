@@ -1,3 +1,6 @@
+`include "dmaInternalRegistersIf.sv"
+`include "cpuInterface.sv"
+`include "dmaInternalSignalsIf.sv"
 module datapathTB();
 
   bit CLK=0;
@@ -101,7 +104,7 @@ module datapathTB();
       $finish();
     end
 
-  task writeRegiter(logic [6 : 0]registerCode, data);
+  task writeRegiter(logic [6 : 0]registerCode, logic [7 : 0]data);
     {cpuIf.CS_N, ior, iow, address} = registerCode;
     db = data;
   endtask
