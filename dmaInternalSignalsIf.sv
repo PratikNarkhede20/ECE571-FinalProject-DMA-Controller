@@ -34,7 +34,9 @@ interface dmaInternalSignalsIf(input logic CLK, RESET);
     input loadAddr,
     input programCondition,
     input updateCurrentWordCountReg,
-    input updateCurrentAddressReg
+    input updateCurrentAddressReg,
+    output decrTemporaryWordCountReg,
+    output incrTemporaryAddressReg
   );
 
 endinterface
