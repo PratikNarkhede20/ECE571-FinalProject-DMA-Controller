@@ -11,6 +11,13 @@ module testTimingAndControl();
   timingAndControl DUT(cpuIf.timingAndControl, cpuIf.priorityLogic, intRegIf.timingAndControl, intSigIf.timingAndControl);
 
   task setProgramCondition()
+    begin
+      cpuIf.CS_N = 1'b0;
+
+      WAITE = $urandom_range(7,1);
+      repeat(WAITE) @(negedge CLK);
+      cpuIf.CS_N = 1'b1;
+    end
 
   always @(negedge CLK)
     begin
@@ -86,11 +93,12 @@ module testTimingAndControl();
       RESET = 1'b0;
 
       @(negedge CLK);
-      cpuIf.CS_N = 1'b0;
+      setProgramCondition()
+      /*cpuIf.CS_N = 1'b0;
 
       WAITE = $urandom_range(7,1);
       repeat(WAITE) @(negedge CLK);
-      cpuIf.CS_N = 1'b1;
+      cpuIf.CS_N = 1'b1;*/
 
       repeat(1) @(negedge CLK);
       cpuIf.DREQ = 4'b0001;
