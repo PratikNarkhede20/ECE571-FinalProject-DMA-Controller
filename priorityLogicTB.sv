@@ -8,7 +8,6 @@ module priorityLogic_tb;
   bit CLK=0;
   bit RESET;
   always #5 CLK = ~CLK;
-  int a,b;
 
   cpuInterface cpuIf(CLK, RESET);
 
@@ -16,7 +15,7 @@ module priorityLogic_tb;
 
   dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
 
-  priorityLogic tb (cpuIf.priorityLogic, intRegIf.priorityLogic, intSigIf.priorityLogic);
+  priorityLogic tb (cpuIf, intRegIf, intSigIf);
 
   initial
     begin
@@ -70,11 +69,6 @@ module priorityLogic_tb;
       end
       $strobe("P DACK = %b",cpuIf.DACK);
 
-
-      @(negedge CLK)
-      a = $countones(cpuIf.DACK);
-      $display("a = %d",a);
-
       $finish();
     end
 
@@ -84,12 +78,5 @@ module priorityLogic_tb;
     cpuIf.DREQ |=> ($countones(cpuIf.DACK) ==1 );
   endproperty
   singleDACK_a : assert property(singleDACK_p);
-
-  property DREQIsKnown_p;
-    @(posedge CLK)
-    disable iff (RESET)
-    $isunknown(cpuIf.DREQ);
-    endproperty
-    DREQIsKnown_a : assert property(DREQIsKnown_p);
 
 endmodule
