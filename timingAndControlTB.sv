@@ -16,7 +16,7 @@ module testTimingAndControl();
     WAITE = $urandom_range(7,1);
     repeat(WAITE) @(negedge CLK);
     cpuIf.CS_N = 1'b1;
-    endtask
+  endtask
 
   task transactionRequest(
     input logic [3:0] DREQ,
