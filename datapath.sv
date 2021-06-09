@@ -389,7 +389,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       if(cpuIf.RESET)
         intRegIf.temporaryAddressReg <= '0;
 
-      else if(intSigIf.incrintRegIf.temporaryAddressReg)
+      else if(intSigIf.incrTemporaryAddressReg)
         intRegIf.temporaryAddressReg <= intRegIf.temporaryAddressReg + 1'b1;
 
       else
@@ -402,7 +402,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       if(cpuIf.RESET)
         intRegIf.temporaryWordCountReg <= '0;
 
-      else if(intSigIf.decrintRegIf.temporaryWordCountReg)
+      else if(intSigIf.decrTemporaryWordCountReg)
         intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg - 1'b1;
 
       else
