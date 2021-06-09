@@ -105,7 +105,7 @@ module testTimingAndControl();
       cpuIf.HLDA = 1'b0;
       cpuIf.CS_N = 1'b1;
 
-      transactionRequest(4'b0000, 8'b00000000, 16'b00);
+      transactionRequest(4'b0000, 8'b00000000, 16'b00, 16'b00);
       /*intRegIf.modeReg[0].transferType = 2'b01;
       intRegIf.modeReg[1].transferType = 2'b00;
       intRegIf.modeReg[2].transferType = 2'b00;
@@ -124,11 +124,11 @@ module testTimingAndControl();
       cpuIf.CS_N = 1'b1;*/
 
       repeat(1) @(negedge CLK);
-      transactionRequest(4'b0001, 8'b01000000, 16'b10);
+      transactionRequest(4'b0001, 8'b01000000, 16'b10, 16'b11);
       //cpuIf.DREQ = 4'b0001;
 
-      repeat(8) @(negedge CLK);
-      doReset();
+      /*repeat(8) @(negedge CLK);
+      doReset();*/
 
       /*@(negedge CLK);
       if(intSigIf.intEOP)
