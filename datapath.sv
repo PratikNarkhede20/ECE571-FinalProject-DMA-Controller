@@ -8,8 +8,8 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   logic [ADDRESSWIDTH-1 : 0] baseWordCountReg      [CHANNELS-1 : 0];
   logic [ADDRESSWIDTH-1 : 0] currentAddressReg     [CHANNELS-1 : 0];
   logic [ADDRESSWIDTH-1 : 0] currentWordCountReg   [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] temporaryAddressReg;
-  logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg;
+  //logic [ADDRESSWIDTH-1 : 0] temporaryAddressReg;
+  //logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg;
   logic [DATAWIDTH-1    : 0] temporaryReg;
 
   //read and write buffer inside DMA
@@ -168,30 +168,30 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
-        temporaryAddressReg <= '0;
+        intRegIf.temporaryAddressReg <= '0;
 
       else if(intSigIf.loadAddr) //update the condition to capture higher address bits
         begin
-          ioDataBuffer <= temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
-          {outputAddressBuffer, ioAddressBuffer} <= temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
+          ioDataBuffer <= intRegIf.temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
+          {outputAddressBuffer, ioAddressBuffer} <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
         end
 
       else
         begin
           if(cpuIf.DACK[0])
-            temporaryAddressReg <= currentAddressReg[0];
+            intRegIf.temporaryAddressReg <= currentAddressReg[0];
 
           else if(cpuIf.DACK[1])
-            temporaryAddressReg <= currentAddressReg[1];
+            intRegIf.temporaryAddressReg <= currentAddressReg[1];
 
           else if(cpuIf.DACK[2])
-            temporaryAddressReg <= currentAddressReg[2];
+            intRegIf.temporaryAddressReg <= currentAddressReg[2];
 
           else if(cpuIf.DACK[3])
-            temporaryAddressReg <= currentAddressReg[3];
+            intRegIf.temporaryAddressReg <= currentAddressReg[3];
 
           else
-            temporaryAddressReg <= temporaryAddressReg;
+            intRegIf.temporaryAddressReg <= intRegIf.temporaryAddressReg;
         end
 
     end
@@ -271,16 +271,16 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       else
         begin
           if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[0])
-            currentAddressReg[0] <= temporaryAddressReg;
+            currentAddressReg[0] <= intRegIf.temporaryAddressReg;
 
           else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[1])
-            currentAddressReg[1] <= temporaryAddressReg;
+            currentAddressReg[1] <= intRegIf.temporaryAddressReg;
 
           else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[2])
-            currentAddressReg[2] <= temporaryAddressReg;
+            currentAddressReg[2] <= intRegIf.temporaryAddressReg;
 
           else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[3])
-            currentAddressReg[3] <= temporaryAddressReg;
+            currentAddressReg[3] <= intRegIf.temporaryAddressReg;
 
           else
             begin
@@ -363,16 +363,16 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       else
         begin
           if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[0])
-            currentWordCountReg[0] <= temporaryWordCountReg;
+            currentWordCountReg[0] <= intRegIf.temporaryWordCountReg;
 
           else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[1])
-            currentWordCountReg[1] <= temporaryWordCountReg;
+            currentWordCountReg[1] <= intRegIf.temporaryWordCountReg;
 
           else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[2])
-            currentWordCountReg[2] <= temporaryWordCountReg;
+            currentWordCountReg[2] <= intRegIf.temporaryWordCountReg;
 
           else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[3])
-            currentWordCountReg[3] <= temporaryWordCountReg;
+            currentWordCountReg[3] <= intRegIf.temporaryWordCountReg;
 
           else
             begin
@@ -387,26 +387,26 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   always_ff @(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
-        temporaryAddressReg <= '0;
+        intRegIf.temporaryAddressReg <= '0;
 
-      else if(intSigIf.incrTemporaryAddressReg)
-        temporaryAddressReg <= temporaryAddressReg + 1'b1;
+      else if(intSigIf.incrintRegIf.temporaryAddressReg)
+        intRegIf.temporaryAddressReg <= intRegIf.temporaryAddressReg + 1'b1;
 
       else
-        temporaryAddressReg <= temporaryAddressReg;
+        intRegIf.temporaryAddressReg <= intRegIf.temporaryAddressReg;
     end
 
   //temporary word count
   always_ff @(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
-        temporaryWordCountReg <= '0;
+        intRegIf.temporaryWordCountReg <= '0;
 
-      else if(intSigIf.decrTemporaryWordCountReg)
-        temporaryWordCountReg <= temporaryWordCountReg - 1'b1;
+      else if(intSigIf.decrintRegIf.temporaryWordCountReg)
+        intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg - 1'b1;
 
       else
-        temporaryWordCountReg <= temporaryWordCountReg;
+        intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg;
     end
 
   //internal flip flop
