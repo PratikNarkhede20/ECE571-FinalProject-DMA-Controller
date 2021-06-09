@@ -168,7 +168,7 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
       if(cpuIf.RESET)
         intRegIf.temporaryAddressReg <= '0;
 
-      else if(intSigIf.loadAddr)
+      else if(intSigIf.loadAddr) //update the condition to capture higher address bits
         begin
           ioDataBuffer <= intRegIf.temporaryAddressReg[ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
           {outputAddressBuffer, ioAddressBuffer} <= intRegIf.temporaryAddressReg[ ((ADDRESSWIDTH/2)-1) : 0 ];
@@ -432,13 +432,5 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
     $display("writeBuffer = %p", writeBuffer);
     $display("readBuffer = %p", readBuffer);
   end
-
-  initial
-    begin
-      $dumpfile("dump.vcd");
-      $dumpvars(0);
-    end
-
-
 
 endmodule
