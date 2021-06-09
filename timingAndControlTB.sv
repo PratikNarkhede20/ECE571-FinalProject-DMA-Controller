@@ -46,17 +46,21 @@ module testTimingAndControl();
         cpuIf.DACK = cpuIf.DREQ;
       else
         cpuIf.DACK = 4'b0000;
+
       if(cpuIf.HRQ)
         cpuIf.HLDA = 1'b1;
       else
         cpuIf.HLDA = 1'b0;
+
       /*if(!cpuIf.HRQ)
         cpuIf.HLDA = 1'b0;*/
       if(intSigIf.decrTemporaryWordCountReg)
-        begin
-	  //cpuIf.HLDA = 1'b0;
-          intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
-        end
+        intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
+      end
+
+      if(intSigIf.incrTemporaryAddressReg)
+        intRegIf.temporaryAddressReg = intRegIf.temporaryAddressReg + 1'b1;
+      end
     end
 
   always @(posedge intSigIf.intEOP)
