@@ -58,11 +58,9 @@ module testTimingAndControl();
         cpuIf.HLDA = 1'b0;*/
       if(intSigIf.decrTemporaryWordCountReg)
         intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
-      end
 
       if(intSigIf.incrTemporaryAddressReg)
         intRegIf.temporaryAddressReg = intRegIf.temporaryAddressReg + 1'b1;
-      end
     end
 
   always @(posedge intSigIf.intEOP)
@@ -127,8 +125,8 @@ module testTimingAndControl();
       transactionRequest(4'b0001, 8'b01000000, 16'b10, 16'b11);
       //cpuIf.DREQ = 4'b0001;
 
-      /*repeat(8) @(negedge CLK);
-      doReset();*/
+      repeat(6) @(negedge CLK);
+      doReset();
 
       /*@(negedge CLK);
       if(intSigIf.intEOP)
