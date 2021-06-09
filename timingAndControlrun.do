@@ -34,10 +34,12 @@ add wave -position 23 sim:/testTimingAndControl/cpuIf/MEMW_N
 add wave -position 24 sim:/testTimingAndControl/cpuIf/READY
 add wave -position 25 sim:/testTimingAndControl/intSigIf/decrTemporaryWordCountReg
 add wave -position 26 sim:/testTimingAndControl/intRegIf/temporaryWordCountReg
-add wave -position 27 sim:/testTimingAndControl/intSigIf/intEOP
-add wave -position 28 sim:/testTimingAndControl/cpuIf/CS_N
-add wave -position 29 sim:/testTimingAndControl/intRegIf/modeReg
-add wave -position 30 sim:/testTimingAndControl/intSigIf/updateCurrentWordCountReg
-add wave -position 31 sim:/testTimingAndControl/intSigIf/updateCurrentAddressReg
-add wave -position 32 sim:/testTimingAndControl/cpuIf/EOP_N
+add wave -position 27 sim:/testTimingAndControl/intSigIf/incrTemporaryAddressReg
+add wave -position 28 sim:/testTimingAndControl/intRegIf/temporaryAddressReg
+add wave -position 29 sim:/testTimingAndControl/intSigIf/intEOP
+add wave -position 30 sim:/testTimingAndControl/cpuIf/CS_N
+add wave -position 31 sim:/testTimingAndControl/intRegIf/modeReg
+add wave -position 32 sim:/testTimingAndControl/intSigIf/updateCurrentWordCountReg
+add wave -position 33 sim:/testTimingAndControl/intSigIf/updateCurrentAddressReg
+add wave -position 34 sim:/testTimingAndControl/cpuIf/EOP_N
 run -all
