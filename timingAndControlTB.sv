@@ -10,6 +10,8 @@ module testTimingAndControl();
 
   timingAndControl DUT(cpuIf.timingAndControl, cpuIf.priorityLogic, intRegIf.timingAndControl, intSigIf.timingAndControl);
 
+  task setProgramCondition()
+
   always @(negedge CLK)
     begin
       /*if(DUT.state == 6'b100000 && intSigIf.updateCurrentWordCountReg) //TO DO - Add comment here!! CAUTION - When doing block level testing replace "intSigIf.updateCurrentWordCountReg" with "intSigIf.intEOP"
@@ -18,9 +20,9 @@ module testTimingAndControl();
           cpuIf.DREQ = 4'b0000;
         end*/
       if(!intSigIf.assertDACK)
-        cpuIf.DACK = 4'b0000;
+        cpuIf.DACK = cpuIf.DREQ;
       else
-        cpuIf.DACK = 4'b0001;
+        cpuIf.DACK = 4'b0000;
       if(cpuIf.HRQ)
         cpuIf.HLDA = 1'b1;
       else
@@ -74,12 +76,11 @@ module testTimingAndControl();
       cpuIf.DREQ = 4'b0000;
       cpuIf.HLDA = 1'b0;
       cpuIf.CS_N = 1'b1;
-      //cpuIf.EOP_N = 1'b0;
-      intRegIf.modeReg[0].transferType = 2'b01;
+      intRegIf.modeReg[0].transferType = 2'b00;
       intRegIf.modeReg[1].transferType = 2'b00;
       intRegIf.modeReg[2].transferType = 2'b00;
       intRegIf.modeReg[3].transferType = 2'b00;
-      intRegIf.temporaryWordCountReg = 16'b11;
+      intRegIf.temporaryWordCountReg = 16'b00;
 
       @(negedge CLK);
       RESET = 1'b0;
