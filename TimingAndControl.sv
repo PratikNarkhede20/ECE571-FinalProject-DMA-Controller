@@ -67,6 +67,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
       intSigIf.updateCurrentWordCountReg = 1'b0;
       intSigIf.updateCurrentAddressReg = 1'b0;
       intSigIf.decrTemporaryWordCountReg = 1'b0;
+      intSigIf.incrTemporaryAddressReg = 1'b0;
 
       unique case (1'b1)
 
@@ -80,6 +81,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
             intSigIf.updateCurrentWordCountReg = 1'b0;
             intSigIf.updateCurrentAddressReg = 1'b0;
             intSigIf.decrTemporaryWordCountReg = 1'b0;
+            intSigIf.incrTemporaryAddressReg = 1'b0;
           end
 
         state[SOIndex]:
