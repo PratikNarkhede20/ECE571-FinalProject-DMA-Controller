@@ -1,3 +1,9 @@
+`include "dmaInternalRegistersIf.sv"
+`include "cpuInterfaceTesting.sv"
+`include "dmaInternalSignalsIf.sv"
+//`include "datapath.sv"
+//`include "dmaRegConfigPkg.sv"
+
 module datapathTB();
 
   bit CLK=0;
@@ -21,7 +27,7 @@ module datapathTB();
   assign cpuIf.DB = (!cpuIf.CS_N & cpuIf.HLDA) ? db : 'z;
   assign cpuIf.IOR_N = (ior)? 1'b1 : 1'b0;
   assign cpuIf.IOW_N = (iow)? 1'b1 : 1'b0;
-  assign {cpuIf.cpu.A3, cpuIf.cpu.A2, cpuIf.cpu.A1, cpuIf.cpu.A0} = (!cpuIf.CS_N & cpuIf.HLDA) ? address : 'z;
+  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA) ? address : 'z;
 
   initial
     begin
