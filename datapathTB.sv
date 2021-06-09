@@ -1,9 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
-`include "dmaInternalSignalsIf.sv"
-//`include "datapath.sv"
-//`include "dmaRegConfigPkg.sv"
-
 module datapathTB();
 
   bit CLK=0;
@@ -69,7 +63,7 @@ module datapathTB();
 
       //write lower byte to base address register and Current Address Register
       @(negedge CLK)
-      writeRegiter(7'b0100010, 8'b11001100);
+      writeRegiter(7'b0100010, 8'b00010001);
 
       repeat(2)@(negedge CLK);
 
