@@ -10,14 +10,30 @@ module testTimingAndControl();
 
   timingAndControl DUT(cpuIf.timingAndControl, cpuIf.priorityLogic, intRegIf.timingAndControl, intSigIf.timingAndControl);
 
-  task setProgramCondition()
-    begin
-      cpuIf.CS_N = 1'b0;
+  task setProgramCondition();
+    cpuIf.CS_N = 1'b0;
 
-      WAITE = $urandom_range(7,1);
-      repeat(WAITE) @(negedge CLK);
-      cpuIf.CS_N = 1'b1;
-    end
+    WAITE = $urandom_range(7,1);
+    repeat(WAITE) @(negedge CLK);
+    cpuIf.CS_N = 1'b1;
+    endtask
+
+  task transactionRequest(
+    input logic [3:0] DREQ,
+    input logic [7:0] transactionType,
+    input logic [15:0] wordCount
+    );
+    cpuIf.DREQ = DREQ;
+    {intRegIf.modeReg[0].transferType, intRegIf.modeReg[1].transferType, intRegIf.modeReg[2].transferType, intRegIf.modeReg[3].transferType} = transactionType;
+    intRegIf.temporaryWordCountReg = wordCount;
+  endtask
+
+  task doReset();
+    RESET = 1'b1;
+
+    repeat(1) @(negedge CLK);
+    RESET = 1'b0;
+  endtask
 
   always @(negedge CLK)
     begin
@@ -26,7 +42,7 @@ module testTimingAndControl();
           //cpuIf.HLDA = 1'b0;
           cpuIf.DREQ = 4'b0000;
         end*/
-      if(!intSigIf.assertDACK)
+      if(intSigIf.assertDACK)
         cpuIf.DACK = cpuIf.DREQ;
       else
         cpuIf.DACK = 4'b0000;
@@ -80,20 +96,21 @@ module testTimingAndControl();
     begin
       @(negedge CLK);
       RESET = 1'b1;
-      cpuIf.DREQ = 4'b0000;
       cpuIf.HLDA = 1'b0;
       cpuIf.CS_N = 1'b1;
-      intRegIf.modeReg[0].transferType = 2'b00;
+
+      transactionRequest(4'b0000, 8'b00000000, 16'b00);
+      /*intRegIf.modeReg[0].transferType = 2'b01;
       intRegIf.modeReg[1].transferType = 2'b00;
       intRegIf.modeReg[2].transferType = 2'b00;
       intRegIf.modeReg[3].transferType = 2'b00;
-      intRegIf.temporaryWordCountReg = 16'b00;
+      intRegIf.temporaryWordCountReg = 16'b01;*/
 
       @(negedge CLK);
       RESET = 1'b0;
 
       @(negedge CLK);
-      setProgramCondition()
+      setProgramCondition();
       /*cpuIf.CS_N = 1'b0;
 
       WAITE = $urandom_range(7,1);
@@ -101,7 +118,11 @@ module testTimingAndControl();
       cpuIf.CS_N = 1'b1;*/
 
       repeat(1) @(negedge CLK);
-      cpuIf.DREQ = 4'b0001;
+      transactionRequest(4'b0001, 8'b01000000, 16'b10);
+      //cpuIf.DREQ = 4'b0001;
+
+      repeat(8) @(negedge CLK);
+      doReset();
 
       /*@(negedge CLK);
       if(intSigIf.intEOP)
