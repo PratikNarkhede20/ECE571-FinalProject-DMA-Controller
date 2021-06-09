@@ -21,11 +21,13 @@ module testTimingAndControl();
   task transactionRequest(
     input logic [3:0] DREQ,
     input logic [7:0] transactionType,
-    input logic [15:0] wordCount
+    input logic [15:0] wordCount,
+    input logic [15:0] addressReg
     );
     cpuIf.DREQ = DREQ;
     {intRegIf.modeReg[0].transferType, intRegIf.modeReg[1].transferType, intRegIf.modeReg[2].transferType, intRegIf.modeReg[3].transferType} = transactionType;
     intRegIf.temporaryWordCountReg = wordCount;
+    intRegIf.temporaryAddressReg = addressReg;
   endtask
 
   task doReset();
