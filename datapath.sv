@@ -3,22 +3,26 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
 
   import dmaRegConfigPkg :: *; //wildcard import
 
+  //internal register of DMA
   logic [ADDRESSWIDTH-1 : 0] baseAddressReg        [CHANNELS-1 : 0];
   logic [ADDRESSWIDTH-1 : 0] baseWordCountReg      [CHANNELS-1 : 0];
   logic [ADDRESSWIDTH-1 : 0] currentAddressReg     [CHANNELS-1 : 0];
   logic [ADDRESSWIDTH-1 : 0] currentWordCountReg   [CHANNELS-1 : 0];
-  //logic [ADDRESSWIDTH-1 : 0] temporaryAddressReg          ;
-  //logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg        ;
   logic [DATAWIDTH-1    : 0] temporaryReg;
 
+  //read and write buffer inside DMA
   logic [DATAWIDTH-1    : 0] writeBuffer;
   logic [DATAWIDTH-1    : 0] readBuffer ;
 
+  //address and data buffers of DMA
   logic [DATAWIDTH-1 : 0]        ioDataBuffer       ;
   logic [(ADDRESSWIDTH/4)-1 : 0] ioAddressBuffer    ;
   logic [(ADDRESSWIDTH/4)-1 : 0] outputAddressBuffer;
 
+  //internal flipflop
   logic internalFF;
+
+  //internals signals used for design logic of DMA
   logic ldBaseAddressReg;
   logic rdCurrentAddressReg;
   logic ldBaseWordCountReg;
@@ -28,6 +32,7 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
   logic rdStatusReg;
   logic clearInternalFF;
   logic enUpperAddress;
+
 
   //Data Buffer
   always_ff@(posedge cpuIf.CLK)
@@ -40,7 +45,7 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
         ioDataBuffer <= ioDataBuffer;
     end
 
-  //assign cpuIf.DB = (!cpuIf.CS_N & !cpuIf.IOR_N) ? ioDataBuffer : 'z;  //UNCOMMENT LATER
+  assign cpuIf.DB = (!cpuIf.CS_N & !cpuIf.IOR_N) ? ioDataBuffer : 'z;  //UNCOMMENT LATER
 
   //Address Buffer
   always_ff@(posedge cpuIf.CLK)
@@ -53,8 +58,8 @@ module datapath(cpuInterfaceTesting cpuIf, dmaInternalRegistersIf intRegIf, dmaI
         ioAddressBuffer <= ioAddressBuffer;
     end
 
-  //assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
-  //assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz; //UNCOMMENT LATER
+  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
+  assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz; //UNCOMMENT LATER
 
 
   //
