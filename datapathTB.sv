@@ -1,9 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "cpuInterfaceTesting.sv"
-`include "dmaInternalSignalsIf.sv"
-//`include "datapath.sv"
-//`include "dmaRegConfigPkg.sv"
-
 module datapathTB();
 
   bit CLK=0;
@@ -31,14 +25,14 @@ module datapathTB();
 
   initial
     begin
+
+      //reset
       @(negedge CLK) RESET = 1'b1;
       @(negedge CLK)
       begin
-        cpuIf.cpu.CS_N = 1'b0;
+        cpuIf.CS_N = 1'b0;
         intSigIf.loadAddr = 1'b0;
-        $display("commandReg = %b, modeReg0 = %b, maskReg = %b, statusReg = %b", intRegIf.commandReg, intRegIf.modeReg[0], intRegIf.maskReg, intRegIf.statusReg);
       end
-
       @(negedge CLK) RESET = 1'b0;
 
       @(negedge CLK)
