@@ -8,6 +8,7 @@ module top;
   bit CLK=0;
   bit RESET;
   always #5 CLK = ~CLK;
+  logic [2:0] WAITE;
 
   cpuInterface cpuIf(CLK, RESET);
 
@@ -68,10 +69,10 @@ module top;
       cpuIf.DREQ = 4'b0000;
     end
 
-  initial
+  /*initial
     begin
       forever #5 CLK = ~CLK;
-    end
+    end*/
 
   initial
     begin
