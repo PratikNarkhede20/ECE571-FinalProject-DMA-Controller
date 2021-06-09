@@ -57,6 +57,7 @@ module datapathTB();
       @(negedge CLK)
       begin
         //{intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10101100;
+        {cpuIf.CS_N, ior, iow, address} = 7'b0101100;
       end
 
       repeat(2)@(negedge CLK);
