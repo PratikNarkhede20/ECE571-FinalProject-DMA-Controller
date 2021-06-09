@@ -1,5 +1,5 @@
 `include "dmaInternalRegistersIf.sv"
-`include "cpuInterfaceTesting.sv"
+`include "cpuInterface.sv"
 `include "dmaInternalSignalsIf.sv"
 //`include "datapath.sv"
 //`include "dmaRegConfigPkg.sv"
@@ -16,7 +16,7 @@ module datapathTB();
   logic [3:0] address;
 
 
-  cpuInterfaceTesting cpuIf(CLK, RESET);
+  cpuInterface cpuIf(CLK, RESET);
 
   dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
 
@@ -88,12 +88,31 @@ module datapathTB();
       //write upper byte to base word register and Current word Register
       @(negedge CLK)
       writeRegiter(7'b0100101, 8'b10110010);
+
+      repeat(2)@(negedge CLK);
+
+      //read lower byte of Current Address Register
+      @(negedge CLK)
+      readRegiter(7'b0010010);
+
+      repeat(2)@(negedge CLK);
+
+      //read upper byte of Current Address Register
+      @(negedge CLK)
+      readRegiter(7'b0010010);
+
+      repeat(2)@(negedge CLK);
+
       $finish();
     end
 
   task writeRegiter(logic [6 : 0]registerCode, data);
     {cpuIf.CS_N, ior, iow, address} = registerCode;
     db = data;
+  endtask
+
+  task readRegiter(logic [6 : 0]registerCode);
+    {cpuIf.CS_N, ior, iow, address} = registerCode;
   endtask
 
   initial begin

@@ -5,6 +5,7 @@ interface cpuInterface(input logic CLK, RESET);
 
   wire                   IOR_N ;
   wire                   IOW_N ;
+
   logic                  MEMR_N;
   logic                  MEMW_N;
   logic                  READY ;
@@ -15,11 +16,14 @@ interface cpuInterface(input logic CLK, RESET);
   logic                  CS_N  ;
   logic [CHANNELS-1 : 0] DACK  ;
   logic [CHANNELS-1 : 0] DREQ  ;
+
   wire                   EOP_N ;
+
   wire                   A0    ;
   wire                   A1    ;
   wire                   A2    ;
   wire                   A3    ;
+
   logic                  A4    ;
   logic                  A5    ;
   logic                  A6    ;
@@ -58,6 +62,7 @@ interface cpuInterface(input logic CLK, RESET);
     input IOW_N,
     input DREQ,
     input DACK,
+    input HLDA,
 
     inout A0,
     inout A1,
@@ -71,4 +76,9 @@ interface cpuInterface(input logic CLK, RESET);
     output A7);
 
 
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0);
+    end
 endinterface
