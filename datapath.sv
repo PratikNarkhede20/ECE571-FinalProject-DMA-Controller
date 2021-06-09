@@ -33,7 +33,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   logic ldModeReg;
   logic rdStatusReg;
   logic clearInternalFF;
-  logic enUpperAddress;
+  bit enUpperAddress;
 
 
   //Data Buffer
@@ -456,5 +456,11 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     $display("writeBuffer = %p", writeBuffer);
     $display("readBuffer = %p", readBuffer);
   end
+
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0);
+    end
 
 endmodule
