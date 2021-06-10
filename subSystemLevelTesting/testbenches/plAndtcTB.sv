@@ -12,11 +12,11 @@ module top;
 
   cpuInterface cpuIf(CLK, RESET);
 
-  dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
+  //dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
 
-  dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
+  //dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
 
-  dma dmaDUT (cpuIf);
+  dma DUT (cpuIf);
 
   task setProgramCondition();
     cpuIf.CS_N = 1'b0;
@@ -33,9 +33,9 @@ module top;
     input logic [15:0] addressReg
   );
     cpuIf.DREQ = DREQ;
-    {intRegIf.modeReg[0].transferType, intRegIf.modeReg[1].transferType, intRegIf.modeReg[2].transferType, intRegIf.modeReg[3].transferType} = transactionType;
-    intRegIf.temporaryWordCountReg = wordCount;
-    intRegIf.temporaryAddressReg = addressReg;
+    {DUT.intRegIf.modeReg[0].transferType, DUT.intRegIf.modeReg[1].transferType, DUT.intRegIf.modeReg[2].transferType, DUT.intRegIf.modeReg[3].transferType} = transactionType;
+    DUT.intRegIf.temporaryWordCountReg = wordCount;
+    DUT.intRegIf.temporaryAddressReg = addressReg;
   endtask
 
   task doReset();
@@ -57,14 +57,18 @@ module top;
       else
         cpuIf.HLDA = 1'b0;
 
-      if(intSigIf.decrTemporaryWordCountReg)
-        intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
+      if(DUT.intSigIf.decrTemporaryWordCountReg)
+      begin
+        DUT.intRegIf.temporaryWordCountReg = DUT.intRegIf.temporaryWordCountReg - 1'b1;
+      end
 
-      if(intSigIf.incrTemporaryAddressReg)
-        intRegIf.temporaryAddressReg = intRegIf.temporaryAddressReg + 1'b1;
+      if(DUT.intSigIf.incrTemporaryAddressReg)
+      begin
+        DUT.intRegIf.temporaryAddressReg = DUT.intRegIf.temporaryAddressReg + 1'b1;
+      end
     end
 
-  always @(posedge intSigIf.intEOP)
+  always @(posedge DUT.intSigIf.intEOP)
     begin
       cpuIf.DREQ = 4'b0000;
     end
@@ -74,11 +78,11 @@ module top;
       forever #5 CLK = ~CLK;
     end*/
 
-  initial
+  /*initial
     begin
       $dumpfile("dumps.vcd");
       $dumpvars;
-    end
+    end*/
 
   initial
     begin
@@ -86,6 +90,7 @@ module top;
       RESET = 1'b1;
       cpuIf.HLDA = 1'b0;
       cpuIf.CS_N = 1'b1;
+      DUT.intRegIf.commandReg.priorityType = 1'b0;
 
       transactionRequest(4'b0000, 8'b00000000, 16'b00, 16'b00);
 
@@ -96,7 +101,7 @@ module top;
       setProgramCondition();
 
       repeat(1) @(negedge CLK);
-      transactionRequest(4'b0001, 8'b01000000, 16'b10, 16'b11);
+      transactionRequest(4'b1111, 8'b01100110, 16'b10, 16'b11);
 
       repeat(6) @(negedge CLK);
       doReset();
