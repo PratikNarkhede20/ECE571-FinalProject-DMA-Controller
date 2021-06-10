@@ -4,10 +4,10 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   import dmaRegConfigPkg :: *; //wildcard import
 
   //internal register of DMA
-  logic [ADDRESSWIDTH-1 : 0] baseAddressReg      [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] baseWordCountReg    [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] currentAddressReg   [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] currentWordCountReg [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] baseAddressReg        [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] baseWordCountReg      [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] currentAddressReg     [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] currentWordCountReg   [CHANNELS-1 : 0];
   //logic [ADDRESSWIDTH-1 : 0] temporaryAddressReg;
   //logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg;
   logic [DATAWIDTH-1    : 0] temporaryReg;
@@ -33,7 +33,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   logic ldModeReg;
   logic rdStatusReg;
   logic clearInternalFF;
-  bit enUpperAddress;
+  logic enUpperAddress;
+
+  //intSigIf.intEOP = 1'b0;
 
 
   //Data Buffer
@@ -61,10 +63,10 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
-  assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz;
+  assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz; //UNCOMMENT LATER
 
 
-  //register selection for configuration
+  //
   always_comb
     begin
       //Register Code for writing Base Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
@@ -91,9 +93,10 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       //Register Code for clearing Internal Flip Flop is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=1 , A1=0 , A0=0
       clearInternalFF = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
 
-
-      singleRegisterConfig_a : assert ($onehot({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}));
+      //TO DO : IMMEDIATE Assertions
+      //assert
     end
+
 
   //Command Register
   always_ff@(posedge cpuIf.CLK)
@@ -402,7 +405,12 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         intRegIf.temporaryWordCountReg <= '0;
 
       else if(intSigIf.decrTemporaryWordCountReg)
-        intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg - 1'b1;
+        begin
+          /*if (intRegIf.temporaryWordCountReg == 0)
+            intSigIf.intEOP = 1'b1;
+          else*/
+            intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg - 1'b1;
+        end
 
       else
         intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg;
@@ -432,7 +440,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         writeBuffer <= writeBuffer;
     end
 
-  //Read Buffer
+  //read Buffer
   always_ff@(posedge cpuIf.CLK)
     begin
       if(cpuIf.RESET)
@@ -445,15 +453,6 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         readBuffer <= readBuffer;
     end
 
-  //Output Address buffer
-  always_ff@(posedge cpuIf.CLK)
-    begin
-      if(cpuIf.RESET)
-        outputAddressBuffer <= '0;
-      else
-        outputAddressBuffer <= outputAddressBuffer;
-    end
-
   final
   begin
     $display("baseAddressReg = %p", baseAddressReg);
@@ -464,96 +463,5 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     $display("writeBuffer = %p", writeBuffer);
     $display("readBuffer = %p", readBuffer);
   end
-
-  //assertion to check if Command Register holds valid data
-  property writeCommandRegister_p;
-    @(posedge cpuIf.CLK)
-    disable iff (cpuIf.RESET)
-    (ldCommandReg) |=> (intRegIf.commandReg == $past(ioDataBuffer));
-  endproperty
-
-  writeCommandRegister_a : assert property (writeCommandRegister_p);
-
-
-  //assertion to check if Command Register is zeroed on Reset
-  property commandRegZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-    (cpuIf.RESET) |=> (intRegIf.commandReg == '0);
-  endproperty
-
-  commandRegZeroOnReset_a : assert property (commandRegZeroOnReset_p);
-
-
-    //assertion to check if Mode Register is zeroed on Reset
-   property modeRegZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-     (cpuIf.RESET) |=> (intRegIf.modeReg[0] == '0 and intRegIf.modeReg[1] == '0 and intRegIf.modeReg[2] == '0 and intRegIf.modeReg[3] == '0);
-  endproperty
-
-  modeRegZeroOnReset_a : assert property (modeRegZeroOnReset_p);
-
-
-    //assertion to check if Base Address Register is zeroed on Reset
-    property baseAddressRegZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-     (cpuIf.RESET) |=> (baseAddressReg[0] == '0 and baseAddressReg[1] == '0 and baseAddressReg[2] == '0 and baseAddressReg[3] == '0);
-  endproperty
-
-  baseAddressRegZeroOnReset_a : assert property (baseAddressRegZeroOnReset_p);
-
-
-    //assertion to check if Base Word Count Register is zeroed on Reset
-    property baseWordCountRegZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-      (cpuIf.RESET) |=> (baseWordCountReg[0] == '0 and baseWordCountReg[1] == '0 and baseWordCountReg[2] == '0 and baseWordCountReg[3] == '0);
-  endproperty
-
-  baseWordCountRegZeroOnReset_a : assert property (baseWordCountRegZeroOnReset_p);
-
-
-    //assertion to check if Current Address Register is zeroed on Reset
-    property currentAddressRegZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-      (cpuIf.RESET) |=> (currentAddressReg[0] == '0 and currentAddressReg[1] == '0 and currentAddressReg[2] == '0 and currentAddressReg[3] == '0);
-  endproperty
-
-  currentAddressRegZeroOnReset_a : assert property (currentAddressRegZeroOnReset_p);
-
-
-    //assertion to check if Current Word Count Register is zeroed on Reset
-    property currentWordCountRegZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-      (cpuIf.RESET) |=> (currentWordCountReg[0] == '0 and currentWordCountReg[1] == '0 and currentWordCountReg[2] == '0 and currentWordCountReg[3] == '0);
-  endproperty
-
-  currentWordCountRegZeroOnReset_a : assert property (currentWordCountRegZeroOnReset_p);
-
-
-    //assertion to check if ioDataBuffer is zeroed on Reset
-     property ioDataBufferZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-       (cpuIf.RESET) |=> (ioDataBuffer == '0);
-  endproperty
-
-  ioDataBufferZeroOnReset_a : assert property (ioDataBufferZeroOnReset_p);
-
-
-    //assertion to check if ioAddressBuffer is zeroed on Reset
-    property ioAddressBufferZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-       (cpuIf.RESET) |=> (ioAddressBuffer == '0);
-  endproperty
-
-  ioAddressBufferZeroOnReset_a : assert property (ioAddressBufferZeroOnReset_p);
-
-
-    //assertion to check if outputAddressBuffer is zeroed on Reset
-   property outputAddressBufferZeroOnReset_p;
-    @(posedge cpuIf.CLK)
-       (cpuIf.RESET) |=> (outputAddressBuffer == '0);
-  endproperty
-
-  outputAddressBufferZeroOnReset_a : assert property (outputAddressBufferZeroOnReset_p);
-
 
 endmodule
