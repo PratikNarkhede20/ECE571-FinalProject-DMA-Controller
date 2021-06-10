@@ -1,13 +1,13 @@
 `include "dmaRegConfigPkg.sv"
-module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
+module datapath(busInterface busIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
 
   import dmaRegConfigPkg :: *; //wildcard import
 
   //internal register of DMA
-  logic [ADDRESSWIDTH-1 : 0] baseAddressReg        [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] baseWordCountReg      [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] currentAddressReg     [CHANNELS-1 : 0];
-  logic [ADDRESSWIDTH-1 : 0] currentWordCountReg   [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] baseAddressReg      [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] baseWordCountReg    [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] currentAddressReg   [CHANNELS-1 : 0];
+  logic [ADDRESSWIDTH-1 : 0] currentWordCountReg [CHANNELS-1 : 0];
   //logic [ADDRESSWIDTH-1 : 0] temporaryAddressReg;
   //logic [ADDRESSWIDTH-1 : 0] temporaryWordCountReg;
   logic [DATAWIDTH-1    : 0] temporaryReg;
@@ -33,75 +33,72 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   logic ldModeReg;
   logic rdStatusReg;
   logic clearInternalFF;
-  logic enUpperAddress;
-
-  //intSigIf.intEOP = 1'b0;
+  bit enUpperAddress;
 
 
   //Data Buffer
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         ioDataBuffer <= '0;
-      else if(!cpuIf.CS_N & !cpuIf.IOW_N)
-        ioDataBuffer <= cpuIf.DB;
+      else if(!busIf.CS_N & !busIf.IOW_N)
+        ioDataBuffer <= busIf.DB;
       else
         ioDataBuffer <= ioDataBuffer;
     end
 
-  assign cpuIf.DB = (!cpuIf.CS_N & !cpuIf.IOR_N) ? ioDataBuffer : 'z;  //UNCOMMENT LATER
+  assign busIf.DB = (!busIf.CS_N & !busIf.IOR_N) ? ioDataBuffer : 'z;  //UNCOMMENT LATER
 
   //Address Buffer
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         ioAddressBuffer <= '0;
-      else if(!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr)
-        ioAddressBuffer <= {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0};
+      else if(!busIf.CS_N & busIf.HLDA & intSigIf.loadAddr)
+        ioAddressBuffer <= {busIf.A3, busIf.A2, busIf.A1, busIf.A0};
       else
         ioAddressBuffer <= ioAddressBuffer;
     end
 
-  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
-  assign {cpuIf.A7, cpuIf.A6, cpuIf.A5, cpuIf.A4} = (!cpuIf.CS_N & cpuIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz; //UNCOMMENT LATER
+  assign {busIf.A3, busIf.A2, busIf.A1, busIf.A0} = (!busIf.CS_N & busIf.HLDA & intSigIf.loadAddr) ? ioAddressBuffer : 4'bz;
+  assign {busIf.A7, busIf.A6, busIf.A5, busIf.A4} = (!busIf.CS_N & busIf.HLDA & intSigIf.loadAddr) ? outputAddressBuffer : 4'bz;
 
 
-  //
+  //register selection for configuration
   always_comb
     begin
       //Register Code for writing Base Address Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      ldBaseAddressReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      ldBaseAddressReg = (intSigIf.programCondition & !busIf.CS_N & busIf.IOR_N & !busIf.IOW_N & !busIf.A3 & !busIf.A0 & {busIf.A2, busIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for reading Current Address Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=0. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      rdCurrentAddressReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & !cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      rdCurrentAddressReg = (intSigIf.programCondition & !busIf.CS_N & !busIf.IOR_N & busIf.IOW_N & !busIf.A3 & !busIf.A0 & {busIf.A2, busIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for writing Base Word Count Register is CS_N=0, IOR_N=1, IOW_N=0, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      ldBaseWordCountReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      ldBaseWordCountReg = (intSigIf.programCondition & !busIf.CS_N & busIf.IOR_N & !busIf.IOW_N & !busIf.A3 & busIf.A0 & {busIf.A2, busIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for reading Current Word Count Register is CS_N=0, IOR_N=0, IOW_N=1, A3=0, A0=1. A2, A1 decides the channel. For channel0 A2=0, A1=0. For channel1 A2=0, A1=1. For channel2 A2=1, A1=0. For channel3 A2=1, A1=1
-      rdCurrentWordCountReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & !cpuIf.A3 & cpuIf.A0 & {cpuIf.A2, cpuIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
+      rdCurrentWordCountReg = (intSigIf.programCondition & !busIf.CS_N & !busIf.IOR_N & busIf.IOW_N & !busIf.A3 & busIf.A0 & {busIf.A2, busIf.A1} inside {2'b00, 2'b01, 2'b10, 2'b11}) ? 1'b1 : 1'b0;
 
       //Register Code for writing Command Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=0 , A0=0.
-      ldCommandReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+      ldCommandReg = (intSigIf.programCondition & !busIf.CS_N & busIf.IOR_N & !busIf.IOW_N & busIf.A3 & !busIf.A2 & !busIf.A1 & !busIf.A0) ? 1'b1 : 1'b0;
 
       //Register Code for writing Mode Register is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=0 , A1=1 , A0=1.
-      ldModeReg = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & cpuIf.A1 & cpuIf.A0) ? 1'b1 : 1'b0;
+      ldModeReg = (intSigIf.programCondition & !busIf.CS_N & busIf.IOR_N & !busIf.IOW_N & busIf.A3 & !busIf.A2 & busIf.A1 & busIf.A0) ? 1'b1 : 1'b0;
 
       //Register Code for reading Status Register is CS_N=0, IOR_N=0, IOW_N=1, A3=1, A2=0 , A1=0 , A0=0.
-      rdStatusReg = (intSigIf.programCondition & !cpuIf.CS_N & !cpuIf.IOR_N & cpuIf.IOW_N & cpuIf.A3 & !cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+      rdStatusReg = (intSigIf.programCondition & !busIf.CS_N & !busIf.IOR_N & busIf.IOW_N & busIf.A3 & !busIf.A2 & !busIf.A1 & !busIf.A0) ? 1'b1 : 1'b0;
 
       //Register Code for clearing Internal Flip Flop is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=1 , A1=0 , A0=0
-      clearInternalFF = (intSigIf.programCondition & !cpuIf.CS_N & cpuIf.IOR_N & !cpuIf.IOW_N & cpuIf.A3 & cpuIf.A2 & !cpuIf.A1 & !cpuIf.A0) ? 1'b1 : 1'b0;
+      clearInternalFF = (intSigIf.programCondition & !busIf.CS_N & busIf.IOR_N & !busIf.IOW_N & busIf.A3 & busIf.A2 & !busIf.A1 & !busIf.A0) ? 1'b1 : 1'b0;
 
-      //TO DO : IMMEDIATE Assertions
-      //assert
+      if(!$isunknown({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}))
+        singleRegisterConfig_a : assert ($onehot({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}));
     end
 
-
   //Command Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         intRegIf.commandReg <= '0;
 
       //write Command Register
@@ -113,9 +110,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Mode Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         begin
           for(int i=0; i<=3; i=i+1)
             intRegIf.modeReg[i] <= '0;
@@ -123,7 +120,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       //write Mode Register
       else if( ldModeReg )
-        intRegIf.modeReg[ioDataBuffer[1:0]] <= ioDataBuffer[7:2];
+        intRegIf.modeReg[ioDataBuffer[1 : 0]] <= ioDataBuffer[DATAWIDTH-1 : 2];
 
       else
         begin
@@ -135,9 +132,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
 
   //Status Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         intRegIf.statusReg <= '0;
 
       //read Status Register
@@ -152,10 +149,10 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
       //update Status Register
       else if(intSigIf.intEOP) //TO DO : update condition
         begin
-          intRegIf.statusReg.c3Request 	 <= cpuIf.DREQ[3];
-          intRegIf.statusReg.c2Request 	 <= cpuIf.DREQ[2];
-          intRegIf.statusReg.c1Request 	 <= cpuIf.DREQ[1];
-          intRegIf.statusReg.c0Request 	 <= cpuIf.DREQ[0];
+          intRegIf.statusReg.c3Request 	 <= busIf.DREQ[3];
+          intRegIf.statusReg.c2Request 	 <= busIf.DREQ[2];
+          intRegIf.statusReg.c1Request 	 <= busIf.DREQ[1];
+          intRegIf.statusReg.c0Request 	 <= busIf.DREQ[0];
           intRegIf.statusReg.c3ReachedTC <= (!(|(currentWordCountReg[3]))) ? 1'b1 : 1'b0; //TO DO : Updated Current Word Count Reg
           intRegIf.statusReg.c2ReachedTC <= (!(|(currentWordCountReg[2]))) ? 1'b1 : 1'b0;
           intRegIf.statusReg.c1ReachedTC <= (!(|(currentWordCountReg[1]))) ? 1'b1 : 1'b0;
@@ -167,9 +164,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Temporary Address Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         intRegIf.temporaryAddressReg <= '0;
 
       else if(intSigIf.loadAddr) //update the condition to capture higher address bits
@@ -180,16 +177,16 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       else
         begin
-          if(cpuIf.DACK[0])
+          if(busIf.DACK[0])
             intRegIf.temporaryAddressReg <= currentAddressReg[0];
 
-          else if(cpuIf.DACK[1])
+          else if(busIf.DACK[1])
             intRegIf.temporaryAddressReg <= currentAddressReg[1];
 
-          else if(cpuIf.DACK[2])
+          else if(busIf.DACK[2])
             intRegIf.temporaryAddressReg <= currentAddressReg[2];
 
-          else if(cpuIf.DACK[3])
+          else if(busIf.DACK[3])
             intRegIf.temporaryAddressReg <= currentAddressReg[3];
 
           else
@@ -199,9 +196,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Base Address Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         begin
           for(int i=0; i<=3; i=i+1)
             begin
@@ -214,12 +211,12 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         begin
           if(internalFF)
             begin
-              baseAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
+              baseAddressReg[{busIf.A2, busIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
               enUpperAddress <= '0;
             end
           else
             begin
-              baseAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
+              baseAddressReg[{busIf.A2, busIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
               enUpperAddress <= '1;
             end
         end
@@ -232,9 +229,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Current Address Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         begin
           for(int i=0; i<=3; i=i+1)
             currentAddressReg[i] <= '0;
@@ -245,12 +242,12 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         begin
           if(internalFF)
             begin
-              currentAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
+              currentAddressReg[{busIf.A2, busIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
               enUpperAddress <= '0;
             end
           else
             begin
-              currentAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
+              currentAddressReg[{busIf.A2, busIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
               enUpperAddress <= '1;
             end
         end
@@ -260,28 +257,28 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         begin
           if(internalFF)
             begin
-              readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
+              readBuffer <= currentAddressReg[{busIf.A2, busIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ];
               enUpperAddress <= '0;
             end
           else
             begin
-              readBuffer <= currentAddressReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ];
+              readBuffer <= currentAddressReg[{busIf.A2, busIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ];
               enUpperAddress <= '1;
             end
         end
 
       else
         begin
-          if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[0])
+          if(intSigIf.updateCurrentAddressReg && busIf.DACK[0])
             currentAddressReg[0] <= intRegIf.temporaryAddressReg;
 
-          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[1])
+          else if(intSigIf.updateCurrentAddressReg && busIf.DACK[1])
             currentAddressReg[1] <= intRegIf.temporaryAddressReg;
 
-          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[2])
+          else if(intSigIf.updateCurrentAddressReg && busIf.DACK[2])
             currentAddressReg[2] <= intRegIf.temporaryAddressReg;
 
-          else if(intSigIf.updateCurrentAddressReg && cpuIf.DACK[3])
+          else if(intSigIf.updateCurrentAddressReg && busIf.DACK[3])
             currentAddressReg[3] <= intRegIf.temporaryAddressReg;
 
           else
@@ -293,9 +290,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Base Word Count Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         begin
           for(int i=0; i<=3; i=i+1)
             baseWordCountReg[i] <= '0;
@@ -306,12 +303,12 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         begin
           if(internalFF)
             begin
-              baseWordCountReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
+              baseWordCountReg[{busIf.A2, busIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
               enUpperAddress <= '0;
             end
           else
             begin
-              baseWordCountReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
+              baseWordCountReg[{busIf.A2, busIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
               enUpperAddress <= '1;
             end
         end
@@ -324,9 +321,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Current Word Count Register
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         begin
           for(int i=0; i<=3; i=i+1)
             currentWordCountReg[i] <= '0;
@@ -337,12 +334,12 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         begin
           if(internalFF)
             begin
-              currentWordCountReg[{cpuIf.A2, cpuIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
+              currentWordCountReg[{busIf.A2, busIf.A1}][ (ADDRESSWIDTH-1) : (ADDRESSWIDTH/2) ] <= writeBuffer;
               enUpperAddress <= '0;
             end
           else
             begin
-              currentWordCountReg[{cpuIf.A2, cpuIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
+              currentWordCountReg[{busIf.A2, busIf.A1}][ ((ADDRESSWIDTH/2)-1) : 0 ] <= writeBuffer;
               enUpperAddress <= '1;
             end
         end
@@ -364,16 +361,16 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       else
         begin
-          if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[0])
+          if(intSigIf.updateCurrentWordCountReg && busIf.DACK[0])
             currentWordCountReg[0] <= intRegIf.temporaryWordCountReg;
 
-          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[1])
+          else if(intSigIf.updateCurrentWordCountReg && busIf.DACK[1])
             currentWordCountReg[1] <= intRegIf.temporaryWordCountReg;
 
-          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[2])
+          else if(intSigIf.updateCurrentWordCountReg && busIf.DACK[2])
             currentWordCountReg[2] <= intRegIf.temporaryWordCountReg;
 
-          else if(intSigIf.updateCurrentWordCountReg && cpuIf.DACK[3])
+          else if(intSigIf.updateCurrentWordCountReg && busIf.DACK[3])
             currentWordCountReg[3] <= intRegIf.temporaryWordCountReg;
 
           else
@@ -386,9 +383,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //temporary address register
-  always_ff @(posedge cpuIf.CLK)
+  always_ff @(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         intRegIf.temporaryAddressReg <= '0;
 
       else if(intSigIf.incrTemporaryAddressReg)
@@ -399,27 +396,22 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //temporary word count
-  always_ff @(posedge cpuIf.CLK)
+  always_ff @(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         intRegIf.temporaryWordCountReg <= '0;
 
       else if(intSigIf.decrTemporaryWordCountReg)
-        begin
-          /*if (intRegIf.temporaryWordCountReg == 0)
-            intSigIf.intEOP = 1'b1;
-          else*/
-            intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg - 1'b1;
-        end
+        intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg - 1'b1;
 
       else
         intRegIf.temporaryWordCountReg <= intRegIf.temporaryWordCountReg;
     end
 
   //internal flip flop
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if( cpuIf.RESET || clearInternalFF || !enUpperAddress)
+      if( busIf.RESET || clearInternalFF || !enUpperAddress)
         internalFF <= 1'b0;
       else if(enUpperAddress)
         internalFF <= 1'b1;
@@ -428,9 +420,9 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     end
 
   //Write Buffer
-  always_ff@(posedge cpuIf.CLK)
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         writeBuffer <= '0;
       else if( ldBaseAddressReg | ldBaseWordCountReg | ldCommandReg | ldModeReg )
         begin
@@ -440,10 +432,10 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         writeBuffer <= writeBuffer;
     end
 
-  //read Buffer
-  always_ff@(posedge cpuIf.CLK)
+  //Read Buffer
+  always_ff@(posedge busIf.CLK)
     begin
-      if(cpuIf.RESET)
+      if(busIf.RESET)
         readBuffer <= '0;
       else if( rdCurrentAddressReg | rdCurrentWordCountReg | rdStatusReg )
         begin
@@ -451,6 +443,15 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
         end
       else
         readBuffer <= readBuffer;
+    end
+
+  //Output Address buffer
+  always_ff@(posedge busIf.CLK)
+    begin
+      if(busIf.RESET)
+        outputAddressBuffer <= '0;
+      else
+        outputAddressBuffer <= outputAddressBuffer;
     end
 
   final
@@ -464,4 +465,94 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
     $display("readBuffer = %p", readBuffer);
   end
 
-endmodule
+  //assertion to check if Command Register holds valid data
+  property writeCommandRegister_p;
+    @(posedge busIf.CLK)
+    disable iff (busIf.RESET)
+    (ldCommandReg) |=> (intRegIf.commandReg == $past(ioDataBuffer));
+  endproperty
+
+  writeCommandRegister_a : assert property (writeCommandRegister_p);
+
+
+    //assertion to check if Command Register is zeroed on Reset
+    property commandRegZeroOnReset_p;
+      @(posedge busIf.CLK)
+      (busIf.RESET) |=> (intRegIf.commandReg == '0);
+    endproperty
+
+    commandRegZeroOnReset_a : assert property (commandRegZeroOnReset_p);
+
+
+      //assertion to check if Mode Register is zeroed on Reset
+      property modeRegZeroOnReset_p;
+        @(posedge busIf.CLK)
+        (busIf.RESET) |=> (intRegIf.modeReg[0] == '0 and intRegIf.modeReg[1] == '0 and intRegIf.modeReg[2] == '0 and intRegIf.modeReg[3] == '0);
+      endproperty
+
+      modeRegZeroOnReset_a : assert property (modeRegZeroOnReset_p);
+
+
+        //assertion to check if Base Address Register is zeroed on Reset
+        property baseAddressRegZeroOnReset_p;
+          @(posedge busIf.CLK)
+          (busIf.RESET) |=> (baseAddressReg[0] == '0 and baseAddressReg[1] == '0 and baseAddressReg[2] == '0 and baseAddressReg[3] == '0);
+        endproperty
+
+        baseAddressRegZeroOnReset_a : assert property (baseAddressRegZeroOnReset_p);
+
+
+          //assertion to check if Base Word Count Register is zeroed on Reset
+          property baseWordCountRegZeroOnReset_p;
+            @(posedge busIf.CLK)
+            (busIf.RESET) |=> (baseWordCountReg[0] == '0 and baseWordCountReg[1] == '0 and baseWordCountReg[2] == '0 and baseWordCountReg[3] == '0);
+          endproperty
+
+          baseWordCountRegZeroOnReset_a : assert property (baseWordCountRegZeroOnReset_p);
+
+
+            //assertion to check if Current Address Register is zeroed on Reset
+            property currentAddressRegZeroOnReset_p;
+              @(posedge busIf.CLK)
+              (busIf.RESET) |=> (currentAddressReg[0] == '0 and currentAddressReg[1] == '0 and currentAddressReg[2] == '0 and currentAddressReg[3] == '0);
+            endproperty
+
+            currentAddressRegZeroOnReset_a : assert property (currentAddressRegZeroOnReset_p);
+
+
+              //assertion to check if Current Word Count Register is zeroed on Reset
+              property currentWordCountRegZeroOnReset_p;
+                @(posedge busIf.CLK)
+                (busIf.RESET) |=> (currentWordCountReg[0] == '0 and currentWordCountReg[1] == '0 and currentWordCountReg[2] == '0 and currentWordCountReg[3] == '0);
+              endproperty
+
+              currentWordCountRegZeroOnReset_a : assert property (currentWordCountRegZeroOnReset_p);
+
+
+                //assertion to check if ioDataBuffer is zeroed on Reset
+                property ioDataBufferZeroOnReset_p;
+                  @(posedge busIf.CLK)
+                  (busIf.RESET) |=> (ioDataBuffer == '0);
+                endproperty
+
+                ioDataBufferZeroOnReset_a : assert property (ioDataBufferZeroOnReset_p);
+
+
+                  //assertion to check if ioAddressBuffer is zeroed on Reset
+                  property ioAddressBufferZeroOnReset_p;
+                    @(posedge busIf.CLK)
+                    (busIf.RESET) |=> (ioAddressBuffer == '0);
+                  endproperty
+
+                  ioAddressBufferZeroOnReset_a : assert property (ioAddressBufferZeroOnReset_p);
+
+
+                    //assertion to check if outputAddressBuffer is zeroed on Reset
+                    property outputAddressBufferZeroOnReset_p;
+                      @(posedge busIf.CLK)
+                      (busIf.RESET) |=> (outputAddressBuffer == '0);
+                    endproperty
+
+                    outputAddressBufferZeroOnReset_a : assert property (outputAddressBufferZeroOnReset_p);
+
+                      endmodule
