@@ -1,5 +1,5 @@
 `include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
+`include "busInterface.sv"
 `include "dmaInternalSignalsIf.sv"
 module datapathTB();
 
@@ -13,18 +13,18 @@ module datapathTB();
   logic [3:0] address;
 
 
-  cpuInterface cpuIf(CLK, RESET);
+  busInterface busIf(CLK, RESET);
 
-  dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
+  dmaInternalRegistersIf intRegIf(busIf.CLK, busIf.RESET);
 
-  dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
+  dmaInternalSignalsIf intSigIf(busIf.CLK, busIf.RESET);
 
-  datapath tb(cpuIf.dataPath, intRegIf.dataPath, intSigIf.dataPath);
+  datapath tb(busIf.dataPath, intRegIf.dataPath, intSigIf.dataPath);
 
-  assign cpuIf.DB = (!cpuIf.CS_N & cpuIf.HLDA) ? db : 'z;
-  assign cpuIf.IOR_N = (ior)? 1'b1 : 1'b0;
-  assign cpuIf.IOW_N = (iow)? 1'b1 : 1'b0;
-  assign {cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = (!cpuIf.CS_N & cpuIf.HLDA) ? address : 'z;
+  assign busIf.DB = (!busIf.CS_N & busIf.HLDA) ? db : 'z;
+  assign busIf.IOR_N = (ior)? 1'b1 : 1'b0;
+  assign busIf.IOW_N = (iow)? 1'b1 : 1'b0;
+  assign {busIf.A3, busIf.A2, busIf.A1, busIf.A0} = (!busIf.CS_N & busIf.HLDA) ? address : 'z;
 
   initial
     begin
@@ -33,15 +33,15 @@ module datapathTB();
       @(negedge CLK) RESET = 1'b1;
       @(negedge CLK)
       begin
-        cpuIf.CS_N = 1'b0;
+        busIf.CS_N = 1'b0;
         intSigIf.loadAddr = 1'b0;
       end
       @(negedge CLK) RESET = 1'b0;
 
       @(negedge CLK)
       begin
-        cpuIf.CS_N = 1'b0;
-        cpuIf.HLDA = 1'b1;
+        busIf.CS_N = 1'b0;
+        busIf.HLDA = 1'b1;
         intSigIf.programCondition = 1'b1;
       end
 
@@ -59,8 +59,8 @@ module datapathTB();
       //clear internal flipflop
       @(negedge CLK)
       begin
-        //{intSigIf.programCondition, cpuIf.CS_N, cpuIf.IOR_N, cpuIf.IOW_N, cpuIf.A3, cpuIf.A2, cpuIf.A1, cpuIf.A0} = 8'b10101100;
-        {cpuIf.CS_N, ior, iow, address} = 7'b0101100;
+        //{intSigIf.programCondition, busIf.CS_N, busIf.IOR_N, busIf.IOW_N, busIf.A3, busIf.A2, busIf.A1, busIf.A0} = 8'b10101100;
+        {busIf.CS_N, ior, iow, address} = 7'b0101100;
       end
 
       repeat(2)@(negedge CLK);
@@ -105,12 +105,12 @@ module datapathTB();
     end
 
   task writeRegiter(logic [6 : 0]registerCode, logic [7 : 0]data);
-    {cpuIf.CS_N, ior, iow, address} = registerCode;
+    {busIf.CS_N, ior, iow, address} = registerCode;
     db = data;
   endtask
 
   task readRegiter(logic [6 : 0]registerCode);
-    {cpuIf.CS_N, ior, iow, address} = registerCode;
+    {busIf.CS_N, ior, iow, address} = registerCode;
   endtask
 
   initial begin
