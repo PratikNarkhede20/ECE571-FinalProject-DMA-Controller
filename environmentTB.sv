@@ -1,25 +1,14 @@
-module cpuTB();
+module top();
+
+  import dmaRegConfigPkg :: *; //wildcard import
+
+
   parameter CYCLETIME=10;
   localparam ONTIME =CYCLETIME/2;
   parameter GLOBALTIME=1000;
-  parameter REGISTERADDRESS =4;
-  parameter DATAWIDTH =8;
-  parameter ADDRESSWIDTH=16;
+
   bit CLK;
   logic RESET;
-  logic HRQ;
-  logic HLDA;
-  logic CS_N;
-  logic IOR_N;
-  logic IOW_N;
-  logic[REGISTERADDRESS-1:0] regAddress;
-  logic A3;
-  logic A2;
-  logic A1;
-  logic A0;
-  logic [DATAWIDTH-1:0] DB;
-  logic intEOP;
-
 
   logic [DATAWIDTH-1        : 0] cmdData;
   logic [DATAWIDTH-1        : 0] modeData;
@@ -31,11 +20,14 @@ module cpuTB();
   logic [REGISTERADDRESS-1  : 0] baseChannelWordLB;
   logic [(ADDRESSWIDTH/2)-1 : 0] baseWordHB;
   logic [REGISTERADDRESS-1  : 0] baseChannelWordHB;
-
-  cpu processor(CLK, RESET,  HRQ, HLDA, CS_N, IOR_N, IOW_N, A3, A2, A1, A0, DB, cmdData, modeData, baseAddrLB, baseChannelAddrLW, baseAddrHB, baseChannelAddrHB, baseWordLB, baseChannelWordLB, baseWordHB, baseChannelWordHB, intEOP);
+  logic inreq [PERIPHERALS-1 : 0];
 
   always #ONTIME CLK=~CLK;
 
+  environment DUT(CLK, RESET, cmdData,
+  modeData, baseAddrLB, baseChannelAddrLW,
+  baseAddrHB, baseChannelAddrHB, baseWordLB,
+  baseChannelWordLB, baseWordHB, baseChannelWordHB, inreq);
 
   task configuration(logic [DATAWIDTH-1        : 0] cmdData1,
                      logic [DATAWIDTH-1        : 0] modeData1,
@@ -67,13 +59,13 @@ module cpuTB();
       RESET ='1;
       @(posedge CLK);
       RESET = '0;
-      intEOP = '1;
+      //intEOP = '1;
       @(posedge CLK);
 
       configuration(8'hC0, 8'h44, 4'h0, 8'h01, 4'h0, 8'h00, 4'h1, 8'h05, 4'h1, 8'h00);
 
       @(posedge CLK);
-      intEOP = '0;
+      //intEOP = '0;
       @(posedge CLK);
     end
 
@@ -84,4 +76,5 @@ module cpuTB();
       #GLOBALTIME;
       $finish;
     end
+
 endmodule

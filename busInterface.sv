@@ -75,10 +75,48 @@ interface busInterface(input logic CLK, RESET);
     output A6,
     output A7);
 
+  modport cpu(
+  input CLK,
+  input RESET,
+  input HRQ,
+  output HLDA,
+  output CS_N,
+  output IOR_N,
+  output IOW_N,
+  output A3,
+  output A2,
+  output A1,
+  output A0,
+  output DB
+  );
 
-  initial
-    begin
-      $dumpfile("dump.vcd");
-      $dumpvars(0);
-    end
+  modport memory(
+  input CLK,
+  input MEMR_N,
+  input MEMW_N,
+  input ADSTB,
+  input A0,
+  input A1,
+  input A2,
+  input A3,
+  input A4,
+  input A5,
+  input A6,
+  input A7,
+  inout DB
+  //input DB
+  );
+
+modport peripheral(
+input CLK,
+input RESET,
+input IOR_N,
+input IOW_N,
+inout DB,
+output DREQ,
+input DACK
+);
+
+
+
 endinterface

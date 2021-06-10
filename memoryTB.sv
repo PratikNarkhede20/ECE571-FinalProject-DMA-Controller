@@ -14,7 +14,7 @@ module memoryTB();
     always #5 CLK = ~CLK;
 
 
-  memory memory(CLK,MEMR_N, MEMW_N , ADSTB, A0, A1, A2, A3, A4, A5, A6, A7, addressHB, DB);
+  memory memory(CLK,MEMR_N, MEMW_N , ADSTB, A0, A1, A2, A3, A4, A5, A6, A7, DB, addressHB );
   assign DB = (!MEMW_N) ? dataIn : 'bz;
 //assign DB = dataIn;
 
