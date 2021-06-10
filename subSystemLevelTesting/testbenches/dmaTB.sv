@@ -1,5 +1,5 @@
 `include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
+`include "busInterface.sv"
 `include "dmaInternalSignalsIf.sv"
 `include "priorityLogic.sv"
 
@@ -10,20 +10,20 @@ module top;
   always #5 CLK = ~CLK;
   logic [2:0] WAITE;
 
-  cpuInterface cpuIf(CLK, RESET);
+  busInterface busIf(CLK, RESET);
 
-  //dmaInternalRegistersIf intRegIf(cpuIf.CLK, cpuIf.RESET);
+  //dmaInternalRegistersIf intRegIf(busIf.CLK, busIf.RESET);
 
-  //dmaInternalSignalsIf intSigIf(cpuIf.CLK, cpuIf.RESET);
+  //dmaInternalSignalsIf intSigIf(busIf.CLK, busIf.RESET);
 
-  dma DUT (cpuIf);
+  dma DUT (busIf);
 
   task setProgramCondition();
-    cpuIf.CS_N = 1'b0;
+    busIf.CS_N = 1'b0;
 
     WAITE = $urandom_range(7,1);
     repeat(WAITE) @(negedge CLK);
-    cpuIf.CS_N = 1'b1;
+    busIf.CS_N = 1'b1;
   endtask
 
   task transactionRequest(
@@ -32,7 +32,7 @@ module top;
     input logic [15:0] wordCount,
     input logic [15:0] addressReg
   );
-    cpuIf.DREQ = DREQ;
+    busIf.DREQ = DREQ;
     {DUT.intRegIf.modeReg[0].transferType, DUT.intRegIf.modeReg[1].transferType, DUT.intRegIf.modeReg[2].transferType, DUT.intRegIf.modeReg[3].transferType} = transactionType;
     DUT.intRegIf.temporaryWordCountReg = wordCount;
     DUT.intRegIf.temporaryAddressReg = addressReg;
@@ -48,14 +48,14 @@ module top;
   always @(negedge CLK)
     begin
       /*if(intSigIf.assertDACK)
-        cpuIf.DACK = cpuIf.DREQ;
+        busIf.DACK = busIf.DREQ;
       else
-        cpuIf.DACK = 4'b0000;*/
+        busIf.DACK = 4'b0000;*/
 
-      if(cpuIf.HRQ)
-        cpuIf.HLDA = 1'b1;
+      if(busIf.HRQ)
+        busIf.HLDA = 1'b1;
       else
-        cpuIf.HLDA = 1'b0;
+        busIf.HLDA = 1'b0;
 
       /*if(DUT.intSigIf.decrTemporaryWordCountReg)
       begin
@@ -70,7 +70,7 @@ module top;
 
   always @(posedge DUT.intSigIf.intEOP)
     begin
-      cpuIf.DREQ = 4'b0000;
+      busIf.DREQ = 4'b0000;
     end
 
   /*initial
@@ -88,8 +88,8 @@ module top;
     begin
       @(negedge CLK);
       RESET = 1'b1;
-      cpuIf.HLDA = 1'b0;
-      cpuIf.CS_N = 1'b1;
+      busIf.HLDA = 1'b0;
+      busIf.CS_N = 1'b1;
       DUT.intRegIf.commandReg.priorityType = 1'b0;
 
       transactionRequest(4'b0000, 8'b00000000, 16'b00, 16'b00);

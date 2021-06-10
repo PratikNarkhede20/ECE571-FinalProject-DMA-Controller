@@ -1,16 +1,16 @@
-module dma(cpuInterface cpuIf);
+module dma(busInterface busIf);
 
   import dmaRegConfigPkg :: *; //wildcard parameter package import;
 
-  dmaInternalRegistersIf intRegIf (cpuIf.CLK, cpuIf.RESET);
+  dmaInternalRegistersIf intRegIf (busIf.CLK, busIf.RESET);
 
-  dmaInternalSignalsIf intSigIf (cpuIf.CLK, cpuIf.RESET);
+  dmaInternalSignalsIf intSigIf (busIf.CLK, busIf.RESET);
 
-  priorityLogic pL ( cpuIf.priorityLogic, intRegIf.priorityLogic, intSigIf.priorityLogic );
+  priorityLogic pL ( busIf.priorityLogic, intRegIf.priorityLogic, intSigIf.priorityLogic );
 
-  timingAndControl tC ( cpuIf.timingAndControl, cpuIf.priorityLogic, intRegIf.timingAndControl, intSigIf.timingAndControl );
+  timingAndControl tC ( busIf.timingAndControl, busIf.priorityLogic, intRegIf.timingAndControl, intSigIf.timingAndControl );
 
-  datapath d ( cpuIf, intRegIf, intSigIf );
+  datapath d ( busIf, intRegIf, intSigIf );
 
 
 endmodule
