@@ -1,7 +1,7 @@
 module cpu(CLK, RESET, cmdData, modeData, baseAddrLB, baseChannelAddrLW, baseAddrHB, baseChannelAddrHB, baseWordLB, baseChannelWordLB, baseWordHB, baseChannelWordHB, intEOP, HRQ, HLDA, CS_N, IOR_N, IOW_N, A3, A2, A1, A0, DB);
-  parameter REGISTERADDRESS =4;
-  parameter DATAWIDTH =8;
-  parameter ADDRESSWIDTH=16;
+
+  import dmaRegConfigPkg :: *; //wildcard import
+
   input logic CLK;
   input logic RESET;
   input logic HRQ;
@@ -138,16 +138,16 @@ module cpu(CLK, RESET, cmdData, modeData, baseAddrLB, baseChannelAddrLW, baseAdd
         CS_N = '0;
       else
         begin
-        unique case(regCount)
-          1:ldCommandReg(cmdData);
-          2:ldModeReg(modeData); //44 : channel 0 write;  48 : channel 0 read;
-          3:ldBaAddrLB(baseChannelAddrLW, baseAddrLB);
-          4:ldBaAddreHB(baseChannelAddrHB, baseAddrHB);
-          5:ldBaWordLB(baseChannelWordLB, baseWordLB);
-          6:ldBaWordHB(baseChannelWordHB, baseWordHB);
-          7:CS_N = '1;
-          default: CS_N = '1;
-        endcase
+          unique case(regCount)
+            1:ldCommandReg(cmdData);
+            2:ldModeReg(modeData); //44 : channel 0 write;  48 : channel 0 read;
+            3:ldBaAddrLB(baseChannelAddrLW, baseAddrLB);
+            4:ldBaAddreHB(baseChannelAddrHB, baseAddrHB);
+            5:ldBaWordLB(baseChannelWordLB, baseWordLB);
+            6:ldBaWordHB(baseChannelWordHB, baseWordHB);
+            7:CS_N = '1;
+            default: CS_N = '1;
+          endcase
         end
     end
 

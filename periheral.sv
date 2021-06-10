@@ -1,8 +1,9 @@
 `include "memory.sv"
 module peripheral(CLK, RESET, intEOP, IOR_N, IOW_N, DB, inreq, DREQ, DACK);
   parameter ID=0;
-  parameter ADDRESSWIDTH=16;
-  parameter DATAWIDTH=8;
+
+  import dmaRegConfigPkg :: *; //wildcard import
+
   input logic CLK;
   input logic RESET;
   input logic inreq;

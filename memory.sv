@@ -1,6 +1,7 @@
 module memory(CLK, MEMR_N, MEMW_N, ADSTB, A0, A1, A2, A3, A4, A5, A6, A7, addressHB, DB);
-  parameter ADDRESSWIDTH=16;
-  parameter DATAWIDTH=8;
+
+  import dmaRegConfigPkg :: *; //wildcard import
+
   input logic CLK;
   input logic MEMW_N, MEMR_N;
   input logic ADSTB;
