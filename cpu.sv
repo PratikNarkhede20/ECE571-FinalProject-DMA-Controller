@@ -61,7 +61,7 @@ module cpu(busInterface.cpu cpu,
   task ldCommandReg(logic [DATAWIDTH-1:0] cmdData);
     //command register
     cpu.CS_N ='0;
-    {A3, A2, A1, A1} = 4'h8;
+    {A3, A2, A1, A0} = 4'h8;
     IOR_N = '1;
     IOW_N ='0;
     DB = cmdData;
@@ -72,7 +72,7 @@ module cpu(busInterface.cpu cpu,
     cpu.CS_N ='0;
     IOR_N = '1;
     IOW_N ='0;
-    {A3, A2, A1, A1} = 4'hB;
+    {A3, A2, A1, A0} = 4'hB;
     DB = modeData; //single transfer channel 0 write mode
     //DB<= 8'h48; //single transfer channel 0 read mode
   endtask
@@ -83,7 +83,7 @@ module cpu(busInterface.cpu cpu,
     cpu.CS_N  = '0;
     IOR_N ='1;
     IOW_N ='0;
-    {A3, A2, A1, A1} = channelAddr; //channel 0
+    {A3, A2, A1, A0} = channelAddr; //channel 0
     //{A3, A2, A1, A0} <= 4'h2; //channel 1
     DB =lowerByte;
   endtask
@@ -93,7 +93,7 @@ module cpu(busInterface.cpu cpu,
     cpu.CS_N = '0;
     IOR_N ='1;
     IOW_N ='0;
-    {A3, A2, A1, A1} = channelAddr; //channel 0
+    {A3, A2, A1, A0} = channelAddr; //channel 0
     //{A3, A2, A1, A0} <= 4'h2; //channel 1
     DB<=higherByte;
   endtask
@@ -103,7 +103,7 @@ module cpu(busInterface.cpu cpu,
     cpu.CS_N = '0;
     IOR_N ='1;
     IOW_N ='0;
-    {A3, A2, A1, A1} = channelAddr; //channel 0
+    {A3, A2, A1, A0} = channelAddr; //channel 0
     //{A3, A2, A1, A0} <= 4'h2; //channel 1
     DB <= lowerByte;
   endtask
@@ -114,7 +114,7 @@ module cpu(busInterface.cpu cpu,
     cpu.CS_N = '0;
     IOR_N ='1;
     IOW_N ='0;
-    {A3, A2, A1, A1} = channelAddr; //channel 0
+    {A3, A2, A1, A0} = channelAddr; //channel 0
     //{A3, A2, A1, A0} <= 4'h2; //channel 1
     DB = higherByte;
   endtask
