@@ -120,7 +120,7 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
 
       //write Mode Register
       else if( ldModeReg )
-        intRegIf.modeReg[ioDataBuffer[1:0]] <= ioDataBuffer[7:2];
+        intRegIf.modeReg[ioDataBuffer[1 : 0]] <= ioDataBuffer[DATAWIDTH-1 : 2];
 
       else
         begin
@@ -556,4 +556,4 @@ module datapath(cpuInterface cpuIf, dmaInternalRegistersIf intRegIf, dmaInternal
   outputAddressBufferZeroOnReset_a : assert property (outputAddressBufferZeroOnReset_p);
 
 
-endmodule
+    endmodule
