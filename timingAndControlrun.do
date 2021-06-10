@@ -1,13 +1,13 @@
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/cpuInterface.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/datapath.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/dmaInternalRegistersIf.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/dmaInternalRegistersPkg.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/dmaInternalSignalsIf.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/dmaRegConfigPkg.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/priorityLogic.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/priorityLogicTB.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/testTimingAndControl.sv}
-vlog -reportprogress 300 -work work {N:/MS in USA/Spring 2021/Intro to SV/Project/TimingAndControl.sv}
+vlog -reportprogress 300 -work work busInterface.sv
+vlog -reportprogress 300 -work work datapath.sv
+vlog -reportprogress 300 -work work dmaInternalRegistersIf.sv
+vlog -reportprogress 300 -work work dmaInternalRegistersPkg.sv
+vlog -reportprogress 300 -work work dmaInternalSignalsIf.sv
+vlog -reportprogress 300 -work work dmaRegConfigPkg.sv
+vlog -reportprogress 300 -work work priorityLogic.sv
+vlog -reportprogress 300 -work work priorityLogicTB.sv
+vlog -reportprogress 300 -work work TimingAndControlTB.sv
+vlog -reportprogress 300 -work work TimingAndControl.sv
 vsim -gui -voptargs=+acc work.testTimingAndControl
 add wave -position 1 sim:/testTimingAndControl/*
 add wave -position 3 sim:/testTimingAndControl/DUT/stateIndex
