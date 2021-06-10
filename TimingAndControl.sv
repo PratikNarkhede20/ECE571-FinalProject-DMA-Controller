@@ -1,8 +1,8 @@
 `include "dmaInternalRegistersIf.sv"
-`include "cpuInterface.sv"
+`include "busInterface.sv"
 `include "dmaInternalSignalsIf.sv"
 `include "dmaInternalRegistersPkg.sv"
-module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.priorityLogic PLcpuIf, dmaInternalRegistersIf.timingAndControl intRegIf, dmaInternalSignalsIf.timingAndControl intSigIf);
+module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.priorityLogic PLbusIf, dmaInternalRegistersIf.timingAndControl intRegIf, dmaInternalSignalsIf.timingAndControl intSigIf);
 
 //Flags
   logic ior;
@@ -25,27 +25,27 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
                     S4 = 6'b000001 << S4Index} state, nextState;
 
   //Reset Condition
-  always_ff @(posedge TCcpuIf.CLK)
+  always_ff @(posedge TCbusIf.CLK)
     begin
-      if (TCcpuIf.RESET)
+      if (TCbusIf.RESET)
         state <= SI;
       else
         state <= nextState;
     end
 
-    assign TCcpuIf.IOR_N = (ior)? 1'b0 : 1'bz;
-    assign TCcpuIf.MEMW_N = (memw)? 1'b0 : 1'bz;
-    assign TCcpuIf.IOW_N = (iow)? 1'b0 : 1'bz;
-    assign TCcpuIf.MEMR_N = (memr)? 1'b0 : 1'bz;
+    assign TCbusIf.IOR_N = (ior)? 1'b0 : 1'bz;
+    assign TCbusIf.MEMW_N = (memw)? 1'b0 : 1'bz;
+    assign TCbusIf.IOW_N = (iow)? 1'b0 : 1'bz;
+    assign TCbusIf.MEMR_N = (memr)? 1'b0 : 1'bz;
 
   //Next state Logic
   always_comb
     begin
       nextState = state;
       unique case (1'b1)
-        state[SIIndex]:	if (|PLcpuIf.DREQ && intSigIf.programCondition == 1'b0)
+        state[SIIndex]:	if (|PLbusIf.DREQ && intSigIf.programCondition == 1'b0)
           nextState = SO;
-        state[SOIndex]:	if (PLcpuIf.HLDA )
+        state[SOIndex]:	if (PLbusIf.HLDA )
           nextState = S1;
         state[S1Index]:
           nextState = S2;
@@ -58,7 +58,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
   always_comb
     begin
-      {TCcpuIf.AEN, TCcpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
+      {TCbusIf.AEN, TCbusIf.ADSTB, PLbusIf.HRQ} = 3'b0;
       intSigIf.intEOP = 1'b0;
       intSigIf.loadAddr = 1'b0;
       intSigIf.assertDACK = 1'b0;
@@ -73,9 +73,9 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
         state[SIIndex]:
           begin
-            if(!TCcpuIf.CS_N && !PLcpuIf.HRQ)
+            if(!TCbusIf.CS_N && !PLbusIf.HRQ)
               intSigIf.programCondition = 1'b1;
-            {TCcpuIf.AEN, TCcpuIf.ADSTB, PLcpuIf.HRQ} = 3'b0;
+            {TCbusIf.AEN, TCbusIf.ADSTB, PLbusIf.HRQ} = 3'b0;
             {ior,memw,iow,memr} = 4'b0000;
             intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; //intSigIf.deassertDACK = 1'b0;
             intSigIf.updateCurrentWordCountReg = 1'b0;
@@ -86,22 +86,22 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
         state[SOIndex]:
           begin
-            PLcpuIf.HRQ = 1'b1;
+            PLbusIf.HRQ = 1'b1;
           end
 
         state[S1Index]:
           begin
             //intSigIf.programCondition = 1'b0;
-            PLcpuIf.HRQ = 1'b1;
-            {TCcpuIf.AEN, TCcpuIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
+            PLbusIf.HRQ = 1'b1;
+            {TCbusIf.AEN, TCbusIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
           end
 
         state[S2Index]:
           begin
-            {PLcpuIf.HRQ, TCcpuIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
+            {PLbusIf.HRQ, TCbusIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
             unique case (1'b1)
 
-              PLcpuIf.DACK[0]:
+              PLbusIf.DACK[0]:
                 begin
                   {ior,memw,iow,memr} = 4'b0000;
                   unique case (intRegIf.modeReg[0].transferType)
@@ -110,7 +110,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
                   endcase
                 end
 
-              PLcpuIf.DACK[1]:
+              PLbusIf.DACK[1]:
                 begin
                   {ior,memw,iow,memr} = 4'b0000;
                   unique case (intRegIf.modeReg[1].transferType)
@@ -119,7 +119,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
                   endcase
                 end
 
-              PLcpuIf.DACK[2]:
+              PLbusIf.DACK[2]:
                 begin
                   {ior,memw,iow,memr} = 4'b0000;
                   unique case (intRegIf.modeReg[2].transferType)
@@ -128,7 +128,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
                   endcase
                 end
 
-              PLcpuIf.DACK[3]:
+              PLbusIf.DACK[3]:
                 begin
                   {ior,memw,iow,memr} = 4'b0000;
                   unique case (intRegIf.modeReg[3].transferType)
@@ -143,7 +143,7 @@ module timingAndControl(cpuInterface.timingAndControl TCcpuIf, cpuInterface.prio
 
         state[S4Index]:
           begin
-            {PLcpuIf.HRQ, TCcpuIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b0000;
+            {PLbusIf.HRQ, TCbusIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b0000;
             {ior,memw,iow,memr} = 4'b0000;
 
             //intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
