@@ -1,24 +1,34 @@
-module memory(clk,memR_N, memW_N, address, data);
+module memory(CLK, MEMR_N, MEMW_N, ADSTB, A0, A1, A2, A3, A4, A5, A6, A7, addressHB, DB);
   parameter ADDRESSWIDTH=16;
   parameter DATAWIDTH=8;
-  input logic clk;
-  input logic memW_N, memR_N;
-  input logic [ADDRESSWIDTH-1:0]  address;
-  inout logic [DATAWIDTH-1:0] data;
+  input logic CLK;
+  input logic MEMW_N, MEMR_N;
+  input logic ADSTB;
+  input logic A0, A1, A2, A3, A4, A5, A6, A7;
+  input logic [(ADDRESSWIDTH/2)-1:0]  addressHB;
+  inout logic [DATAWIDTH-1:0] DB;
 
   logic [DATAWIDTH-1:0] dataOut;
   logic [DATAWIDTH-1:0] dataIn;
-
+  logic [ADDRESSWIDTH-1:0] address;
   logic[DATAWIDTH-1:0] mem [10:0];
 
-  assign data = (!memR_N) ? dataOut : 'bz;
+  assign DB = (!MEMR_N) ? dataOut : 'bz;
+
+  always_comb
+    begin
+      if(ADSTB)
+        address = {addressHB,A7,A6,A5,A4,A3,A2,A1,A0};
+      else
+        address='z;
+    end
 
   //write operation
-  always_ff@(posedge clk)
+  always_ff@(posedge CLK)
     begin
-      if(!memW_N)
+      if(!MEMW_N)
         begin
-        mem[address] <= data;
+        mem[address] <= DB;
           $strobe("datamem=%p",mem);
         end
 
@@ -28,7 +38,7 @@ module memory(clk,memR_N, memW_N, address, data);
 
      always_comb
        begin
-         if(!memR_N)
+         if(!MEMR_N)
            dataOut = mem[address];
          else
            dataOut = 'z;
