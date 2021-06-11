@@ -7,12 +7,12 @@ vlog -reportprogress 300 -work work datapath.sv
 vlog -reportprogress 300 -work work priorityLogic.sv
 vlog -reportprogress 300 -work work timingAndControl.sv
 vlog -reportprogress 300 -work work {subSystemLevelTesting/modules/plAndtc.sv}
-vlog -reportprogress 300 -work work {subSystemLevelTesting/modules/dma.sv}
+vlog -reportprogress 300 -work work dma.sv
 vlog -reportprogress 300 -work work datapathTB.sv
 vlog -reportprogress 300 -work work priorityLogicTB.sv
 vlog -reportprogress 300 -work work timingAndControlTB.sv
 vlog -reportprogress 300 -work work {subSystemLevelTesting/testbenches/plAndtcTB.sv}
-vlog -reportprogress 300 -work work {subSystemLevelTesting/testbenches/dmaTB.sv}
+vlog -reportprogress 300 -work work dmaTB.sv
 vsim -gui -voptargs=+acc work.top
 add wave -position 1 sim:/top/*
 add wave -position 3 sim:/top/DUT/tC/stateIndex
