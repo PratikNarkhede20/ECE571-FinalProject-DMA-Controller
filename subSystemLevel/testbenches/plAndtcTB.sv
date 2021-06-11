@@ -3,7 +3,7 @@
 `include "dmaInternalSignalsIf.sv"
 `include "priorityLogic.sv"
 
-module top;
+module plAndtcTB();
 
   bit CLK=0;
   bit RESET;
