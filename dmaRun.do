@@ -1,3 +1,4 @@
+vlib work
 vlog -reportprogress 300 -work work dmaRegConfigPkg.sv
 vlog -reportprogress 300 -work work dmaInternalRegistersPkg.sv
 vlog -reportprogress 300 -work work dmaInternalRegistersIf.sv

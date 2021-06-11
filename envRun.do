@@ -112,3 +112,4 @@ add wave -position end  sim:/top/DUT/mem/dataOut
 add wave -position end  sim:/top/DUT/mem/dataIn
 add wave -position end  sim:/top/DUT/mem/address
 add wave -position end  sim:/top/DUT/mem/mem
+run -all

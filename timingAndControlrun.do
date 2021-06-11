@@ -1,3 +1,4 @@
+vlib work
 vlog -reportprogress 300 -work work busInterface.sv
 vlog -reportprogress 300 -work work datapath.sv
 vlog -reportprogress 300 -work work dmaInternalRegistersIf.sv
