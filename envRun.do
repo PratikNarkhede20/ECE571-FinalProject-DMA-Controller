@@ -22,5 +22,4 @@ vlog -reportprogress 300 -work work peripheralTB.sv
 vlog -reportprogress 300 -work work priorityLogicTB.sv
 vlog -reportprogress 300 -work work timingAndControlTB.sv
 vlog -reportprogress 300 -work work {subSystemLevelTesting/testbenches/plAndtcTB.sv}
-vlog -reportprogress 300 -work work dmaTB.sv
 vsim -gui -voptargs=+acc work.top
