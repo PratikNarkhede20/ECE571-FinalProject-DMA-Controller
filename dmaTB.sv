@@ -1,8 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "busInterface.sv"
-`include "dmaInternalSignalsIf.sv"
-`include "priorityLogic.sv"
-
 module top;
 
   bit CLK=0;

@@ -1,5 +1,3 @@
-`include "dma.sv"
-`include "busInterface.sv"
 module environment(CLK, RESET, cmdData,
 modeData, baseAddrLB, baseChannelAddrLW,
 baseAddrHB, baseChannelAddrHB, baseWordLB,

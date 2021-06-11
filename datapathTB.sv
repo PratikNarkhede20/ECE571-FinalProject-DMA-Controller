@@ -1,6 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "busInterface.sv"
-`include "dmaInternalSignalsIf.sv"
 module datapathTB();
 
   bit CLK=0;

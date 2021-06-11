@@ -1,7 +1,3 @@
-`include "dmaInternalRegistersIf.sv"
-`include "busInterface.sv"
-`include "dmaInternalSignalsIf.sv"
-`include "dmaInternalRegistersPkg.sv"
 module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.priorityLogic PLbusIf, dmaInternalRegistersIf.timingAndControl intRegIf, dmaInternalSignalsIf.timingAndControl intSigIf);
 
 //Flags for peripheral and memory read/write operations

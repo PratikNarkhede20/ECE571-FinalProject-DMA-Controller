@@ -1,20 +1,9 @@
-`include "memory.sv"
 module peripheral(busInterface.peripheral per,
   input logic intEOP,
   input logic inreq);
   parameter ID=0;
 
   import dmaRegConfigPkg :: *; //wildcard import
-
-  //input logic CLK;
-  //input logic RESET;
-  /*input logic inreq;
-  input logic intEOP;
-  input logic IOR_N;
-  input logic IOW_N;
-  input logic DACK;
-  inout logic [DATAWIDTH-1:0] DB;
-  output logic DREQ;*/
 
   logic [ DATAWIDTH-1:0] dataOut;
 
