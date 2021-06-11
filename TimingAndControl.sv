@@ -191,4 +191,33 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
           end
       endcase
     end
+
+    property singleADSTB_p;
+      @(posedge TCbusIf.CLK) disable iff (TCbusIf.RESET)
+      (TCbusIf.ADSTB) |=> (!TCbusIf.ADSTB);
+    endproperty
+
+    singleADSTB_a : assert property (singleADSTB_p);
+
+    property doubleAEN_p;
+      @(posedge TCbusIf.CLK) disable iff (TCbusIf.RESET)
+      (TCbusIf.AEN) |=> ##1 (!TCbusIf.AEN);
+    endproperty
+
+    doubleAEN_a : assert property (doubleAEN_p);
+
+    property doubleloadAddr_p;
+      @(posedge TCbusIf.CLK) disable iff (TCbusIf.RESET)
+      (intSigIf.loadAddr) |=> ##1 (!intSigIf.loadAddr);
+    endproperty
+
+    doubleloadAddr_a : assert property (doubleloadAddr_p);
+
+    property doubleassertDACK_p;
+      @(posedge TCbusIf.CLK) disable iff (TCbusIf.RESET)
+      (intSigIf.assertDACK) |=> ##1 (!intSigIf.assertDACK);
+    endproperty
+
+    doubleassertDACK_a : assert property (doubleassertDACK_p);
+
 endmodule
