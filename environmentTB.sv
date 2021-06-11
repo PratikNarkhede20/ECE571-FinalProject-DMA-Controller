@@ -64,9 +64,15 @@ module top();
 
       configuration(8'hC0, 8'h44, 4'h0, 8'h01, 4'h0, 8'h00, 4'h1, 8'h05, 4'h1, 8'h00);
 
-      @(posedge CLK);
-      //intEOP = '0;
-      @(posedge CLK);
+      repeat(20) @(posedge CLK);
+      inreq[0] = 1'b1;
+      repeat(10) @(posedge CLK);
+      inreq[0] = 1'b0;
+
+      repeat(20) @(posedge CLK);
+      inreq[1] = 1'b1;
+      repeat(10) @(posedge CLK);
+      inreq[1] = 1'b0;
     end
 
   initial

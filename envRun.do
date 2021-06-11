@@ -12,7 +12,7 @@ vlog -reportprogress 300 -work work peripheral.sv
 vlog -reportprogress 300 -work work priorityLogic.sv
 vlog -reportprogress 300 -work work timingAndControl.sv
 vlog -reportprogress 300 -work work {subSystemLevelTesting/modules/plAndtc.sv}
-vlog -reportprogress 300 -work work {subSystemLevelTesting/modules/dma.sv}
+vlog -reportprogress 300 -work work dma.sv
 vlog -reportprogress 300 -work work cpuTB.sv
 vlog -reportprogress 300 -work work dmaTB.sv
 vlog -reportprogress 300 -work work environmentTB.sv
@@ -22,4 +22,5 @@ vlog -reportprogress 300 -work work peripheralTB.sv
 vlog -reportprogress 300 -work work priorityLogicTB.sv
 vlog -reportprogress 300 -work work timingAndControlTB.sv
 vlog -reportprogress 300 -work work {subSystemLevelTesting/testbenches/plAndtcTB.sv}
-vlog -reportprogress 300 -work work {subSystemLevelTesting/testbenches/dmaTB.sv}
+vlog -reportprogress 300 -work work dmaTB.sv
+vsim -gui -voptargs=+acc work.top
