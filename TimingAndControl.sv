@@ -4,12 +4,13 @@
 `include "dmaInternalRegistersPkg.sv"
 module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.priorityLogic PLbusIf, dmaInternalRegistersIf.timingAndControl intRegIf, dmaInternalSignalsIf.timingAndControl intSigIf);
 
-//Flags
+//Flags for peripheral and memory read/write operations
   logic ior;
   logic iow;
   logic memr;
   logic memw;
 
+//Flag to signify that the DMA has been configured
   logic configured;
 
   enum {SIIndex = 0,
@@ -32,7 +33,6 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
       if (TCbusIf.RESET)
       begin
         state <= SI;
-        //configured = 1'b0;
       end
       else
         state <= nextState;
@@ -61,6 +61,7 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
       endcase
     end
 
+//Output Logic
   always_comb
     begin
       {TCbusIf.AEN, TCbusIf.ADSTB, PLbusIf.HRQ} = 3'b0;
@@ -68,12 +69,10 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
       intSigIf.loadAddr = 1'b0;
       intSigIf.assertDACK = 1'b0;
       intSigIf.programCondition = 1'b0;
-      //intSigIf.deassertDACK = 1'b0;
       intSigIf.updateCurrentWordCountReg = 1'b0;
       intSigIf.updateCurrentAddressReg = 1'b0;
       intSigIf.decrTemporaryWordCountReg = 1'b0;
       intSigIf.incrTemporaryAddressReg = 1'b0;
-      //configured = 1'b0;
 
       unique case (1'b1)
 
@@ -90,7 +89,7 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
             end
             {TCbusIf.AEN, TCbusIf.ADSTB, PLbusIf.HRQ} = 3'b0;
             {ior,memw,iow,memr} = 4'b0000;
-            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0; //intSigIf.deassertDACK = 1'b0;
+            intSigIf.intEOP = 1'b0; intSigIf.loadAddr = 1'b0; intSigIf.assertDACK = 1'b0;
             intSigIf.updateCurrentWordCountReg = 1'b0;
             intSigIf.updateCurrentAddressReg = 1'b0;
             intSigIf.decrTemporaryWordCountReg = 1'b0;
@@ -108,7 +107,6 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
 
         state[S1Index]:
           begin
-            //intSigIf.programCondition = 1'b0;
             PLbusIf.HRQ = 1'b1;
             {TCbusIf.AEN, TCbusIf.ADSTB, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b1111;
             if(TCbusIf.RESET)
@@ -124,12 +122,6 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
               configured = 1'b0;
             end
 
-            /*if (intRegIf.temporaryWordCountReg == 0)
-              begin
-                intSigIf.intEOP = 1'b1;
-                configured = 0;
-              end
-            else*/
             intSigIf.decrTemporaryWordCountReg = 1'b1;
 
             intSigIf.incrTemporaryAddressReg = 1'b1;
@@ -187,18 +179,13 @@ module timingAndControl(busInterface.timingAndControl TCbusIf, busInterface.prio
             {PLbusIf.HRQ, TCbusIf.AEN, intSigIf.loadAddr, intSigIf.assertDACK} = 4'b0000;
             {ior,memw,iow,memr} = 4'b0000;
 
-            //intRegIf.temporaryWordCountReg = intRegIf.temporaryWordCountReg - 1'b1;
             intSigIf.updateCurrentWordCountReg = 1'b1;
             if (intRegIf.temporaryWordCountReg == 0)
               begin
                 intSigIf.intEOP = 1'b1;
                 configured = 0;
               end
-            /*else
-              intSigIf.decrTemporaryWordCountReg = 1'b1;*/
 
-            //intRegIf.temporaryAddressReg = intRegIf.temporaryAddressReg + 1'b1;
-            //intSigIf.incrTemporaryAddressReg = 1'b1;
             intSigIf.updateCurrentAddressReg = 1'b1;
 
           end
