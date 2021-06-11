@@ -91,8 +91,8 @@ module datapath(busInterface busIf, dmaInternalRegistersIf intRegIf, dmaInternal
       //Register Code for clearing Internal Flip Flop is CS_N=0, IOR_N=1, IOW_N=0, A3=1, A2=1 , A1=0 , A0=0
       clearInternalFF = (intSigIf.programCondition & !busIf.CS_N & busIf.IOR_N & !busIf.IOW_N & busIf.A3 & busIf.A2 & !busIf.A1 & !busIf.A0) ? 1'b1 : 1'b0;
 
-      if(!$isunknown({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}))
-        singleRegisterConfig_a : assert ($onehot({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}));
+      //if(!$isunknown({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}))
+        //singleRegisterConfig_a : assert ($onehot({ldBaseAddressReg, rdCurrentAddressReg, ldBaseWordCountReg, rdCurrentWordCountReg, ldCommandReg, ldModeReg, rdStatusReg, clearInternalFF}));
     end
 
   //Command Register
@@ -454,17 +454,7 @@ module datapath(busInterface busIf, dmaInternalRegistersIf intRegIf, dmaInternal
         outputAddressBuffer <= outputAddressBuffer;
     end
 
-  final
-  begin
-    $display("baseAddressReg = %p", baseAddressReg);
-    $display("baseWordCountReg = %p", baseWordCountReg);
-    $display("currentAddressReg = %p", currentAddressReg);
-    $display("currentWordCountReg = %p", currentWordCountReg);
-    $display("temporaryReg = %p", temporaryReg);
-    $display("writeBuffer = %p", writeBuffer);
-    $display("readBuffer = %p", readBuffer);
-  end
-
+  //We were facing issues in writing concurrent assertions in a different module and then bind it. That's the reason why we wrote the concurrent assertions in the design.
   //assertion to check if Command Register holds valid data
   property writeCommandRegister_p;
     @(posedge busIf.CLK)
@@ -472,87 +462,87 @@ module datapath(busInterface busIf, dmaInternalRegistersIf intRegIf, dmaInternal
     (ldCommandReg) |=> (intRegIf.commandReg == $past(ioDataBuffer));
   endproperty
 
-  writeCommandRegister_a : assert property (writeCommandRegister_p);
+  //writeCommandRegister_a : assert property (writeCommandRegister_p);
 
 
-    //assertion to check if Command Register is zeroed on Reset
-    property commandRegZeroOnReset_p;
-      @(posedge busIf.CLK)
-      (busIf.RESET) |=> (intRegIf.commandReg == '0);
-    endproperty
+  //assertion to check if Command Register is zeroed on Reset
+  property commandRegZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (intRegIf.commandReg == '0);
+  endproperty
 
-    commandRegZeroOnReset_a : assert property (commandRegZeroOnReset_p);
-
-
-      //assertion to check if Mode Register is zeroed on Reset
-      property modeRegZeroOnReset_p;
-        @(posedge busIf.CLK)
-        (busIf.RESET) |=> (intRegIf.modeReg[0] == '0 and intRegIf.modeReg[1] == '0 and intRegIf.modeReg[2] == '0 and intRegIf.modeReg[3] == '0);
-      endproperty
-
-      modeRegZeroOnReset_a : assert property (modeRegZeroOnReset_p);
+  commandRegZeroOnReset_a : assert property (commandRegZeroOnReset_p);
 
 
-        //assertion to check if Base Address Register is zeroed on Reset
-        property baseAddressRegZeroOnReset_p;
-          @(posedge busIf.CLK)
-          (busIf.RESET) |=> (baseAddressReg[0] == '0 and baseAddressReg[1] == '0 and baseAddressReg[2] == '0 and baseAddressReg[3] == '0);
-        endproperty
+  //assertion to check if Mode Register is zeroed on Reset
+  property modeRegZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (intRegIf.modeReg[0] == '0 and intRegIf.modeReg[1] == '0 and intRegIf.modeReg[2] == '0 and intRegIf.modeReg[3] == '0);
+  endproperty
 
-        baseAddressRegZeroOnReset_a : assert property (baseAddressRegZeroOnReset_p);
-
-
-          //assertion to check if Base Word Count Register is zeroed on Reset
-          property baseWordCountRegZeroOnReset_p;
-            @(posedge busIf.CLK)
-            (busIf.RESET) |=> (baseWordCountReg[0] == '0 and baseWordCountReg[1] == '0 and baseWordCountReg[2] == '0 and baseWordCountReg[3] == '0);
-          endproperty
-
-          baseWordCountRegZeroOnReset_a : assert property (baseWordCountRegZeroOnReset_p);
+  modeRegZeroOnReset_a : assert property (modeRegZeroOnReset_p);
 
 
-            //assertion to check if Current Address Register is zeroed on Reset
-            property currentAddressRegZeroOnReset_p;
-              @(posedge busIf.CLK)
-              (busIf.RESET) |=> (currentAddressReg[0] == '0 and currentAddressReg[1] == '0 and currentAddressReg[2] == '0 and currentAddressReg[3] == '0);
-            endproperty
+  //assertion to check if Base Address Register is zeroed on Reset
+  property baseAddressRegZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (baseAddressReg[0] == '0 and baseAddressReg[1] == '0 and baseAddressReg[2] == '0 and baseAddressReg[3] == '0);
+  endproperty
 
-            currentAddressRegZeroOnReset_a : assert property (currentAddressRegZeroOnReset_p);
-
-
-              //assertion to check if Current Word Count Register is zeroed on Reset
-              property currentWordCountRegZeroOnReset_p;
-                @(posedge busIf.CLK)
-                (busIf.RESET) |=> (currentWordCountReg[0] == '0 and currentWordCountReg[1] == '0 and currentWordCountReg[2] == '0 and currentWordCountReg[3] == '0);
-              endproperty
-
-              currentWordCountRegZeroOnReset_a : assert property (currentWordCountRegZeroOnReset_p);
+  baseAddressRegZeroOnReset_a : assert property (baseAddressRegZeroOnReset_p);
 
 
-                //assertion to check if ioDataBuffer is zeroed on Reset
-                property ioDataBufferZeroOnReset_p;
-                  @(posedge busIf.CLK)
-                  (busIf.RESET) |=> (ioDataBuffer == '0);
-                endproperty
+  //assertion to check if Base Word Count Register is zeroed on Reset
+  property baseWordCountRegZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (baseWordCountReg[0] == '0 and baseWordCountReg[1] == '0 and baseWordCountReg[2] == '0 and baseWordCountReg[3] == '0);
+  endproperty
 
-                ioDataBufferZeroOnReset_a : assert property (ioDataBufferZeroOnReset_p);
-
-
-                  //assertion to check if ioAddressBuffer is zeroed on Reset
-                  property ioAddressBufferZeroOnReset_p;
-                    @(posedge busIf.CLK)
-                    (busIf.RESET) |=> (ioAddressBuffer == '0);
-                  endproperty
-
-                  ioAddressBufferZeroOnReset_a : assert property (ioAddressBufferZeroOnReset_p);
+  baseWordCountRegZeroOnReset_a : assert property (baseWordCountRegZeroOnReset_p);
 
 
-                    //assertion to check if outputAddressBuffer is zeroed on Reset
-                    property outputAddressBufferZeroOnReset_p;
-                      @(posedge busIf.CLK)
-                      (busIf.RESET) |=> (outputAddressBuffer == '0);
-                    endproperty
+  //assertion to check if Current Address Register is zeroed on Reset
+  property currentAddressRegZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (currentAddressReg[0] == '0 and currentAddressReg[1] == '0 and currentAddressReg[2] == '0 and currentAddressReg[3] == '0);
+  endproperty
 
-                    outputAddressBufferZeroOnReset_a : assert property (outputAddressBufferZeroOnReset_p);
+  currentAddressRegZeroOnReset_a : assert property (currentAddressRegZeroOnReset_p);
 
-                      endmodule
+
+  //assertion to check if Current Word Count Register is zeroed on Reset
+  property currentWordCountRegZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (currentWordCountReg[0] == '0 and currentWordCountReg[1] == '0 and currentWordCountReg[2] == '0 and currentWordCountReg[3] == '0);
+  endproperty
+
+  currentWordCountRegZeroOnReset_a : assert property (currentWordCountRegZeroOnReset_p);
+
+
+  //assertion to check if ioDataBuffer is zeroed on Reset
+  property ioDataBufferZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (ioDataBuffer == '0);
+  endproperty
+
+  ioDataBufferZeroOnReset_a : assert property (ioDataBufferZeroOnReset_p);
+
+
+  //assertion to check if ioAddressBuffer is zeroed on Reset
+  property ioAddressBufferZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (ioAddressBuffer == '0);
+  endproperty
+
+  ioAddressBufferZeroOnReset_a : assert property (ioAddressBufferZeroOnReset_p);
+
+
+  //assertion to check if outputAddressBuffer is zeroed on Reset
+  property outputAddressBufferZeroOnReset_p;
+    @(posedge busIf.CLK)
+    (busIf.RESET) |=> (outputAddressBuffer == '0);
+  endproperty
+
+  outputAddressBufferZeroOnReset_a : assert property (outputAddressBufferZeroOnReset_p);
+
+endmodule
