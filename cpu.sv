@@ -17,33 +17,7 @@ module cpu(busInterface.cpu cpu,
   logic IOR_N;
   logic IOW_N;
   logic DB;
-  //input logic CLK;
-  //input logic RESET;
-  //input logic HRQ;
-  /*input logic intEOP;
-
-  input logic [DATAWIDTH-1:0] cmdData;
-  input logic [DATAWIDTH-1:0] modeData;
-  input logic [(ADDRESSWIDTH/2)-1:0] baseAddrLB;
-  input logic [REGISTERADDRESS-1:0] baseChannelAddrLW;
-  input logic [(ADDRESSWIDTH/2)-1:0] baseAddrHB;
-  input logic [REGISTERADDRESS-1:0] baseChannelAddrHB;
-  input logic [(ADDRESSWIDTH/2)-1:0]baseWordLB;
-  input logic [REGISTERADDRESS-1:0] baseChannelWordLB;
-  input logic [(ADDRESSWIDTH/2)-1:0] baseWordHB;
-  input logic [REGISTERADDRESS-1:0] baseChannelWordHB;*/
-
-
-  //register configuration
-  //output logic CS_N;
-  //output logic IOR_N;
-  //output logic IOW_N;
-  //output logic A3;
-  //output logic A2;
-  //output logic A1;
-  //output logic A0;
-  //output logic HLDA;
-  //output logic [DATAWIDTH-1:0] DB;
+  
   logic[REGISTERADDRESS-1:0] regAddress;
   int waitState,count;
 

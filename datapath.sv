@@ -1,4 +1,3 @@
-`include "dmaRegConfigPkg.sv"
 module datapath(busInterface busIf, dmaInternalRegistersIf intRegIf, dmaInternalSignalsIf intSigIf);
 
   import dmaRegConfigPkg :: *; //wildcard import

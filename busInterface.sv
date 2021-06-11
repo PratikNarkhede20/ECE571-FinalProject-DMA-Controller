@@ -1,4 +1,3 @@
-//`include "dmaRegConfigPkg.sv"
 interface busInterface(input logic CLK, RESET);
 
   import dmaRegConfigPkg :: *; //wildcard import

@@ -1,13 +1,6 @@
 module memory(busInterface.memory memory);
 
-
   import dmaRegConfigPkg :: *; //wildcard import
-
-  //input logic CLK;
-  //input logic MEMW_N, MEMR_N;
-  //input logic ADSTB;
-  //input logic A0, A1, A2, A3, A4, A5, A6, A7;
-  //inout logic [DATAWIDTH-1:0] DB;
 
   logic [(ADDRESSWIDTH/2)-1:0]  addressHB;
   logic [DATAWIDTH-1:0] dataOut;
