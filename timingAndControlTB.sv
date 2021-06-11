@@ -1,4 +1,4 @@
-module testTimingAndControl();
+module timingAndControlTB();
 
   bit CLK = 0;
   bit RESET;
